@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import type { Shift, ShiftAssignment, Vehicle, Profile } from '../../types/database'
-import { Plus, Calendar, Clock, Users, Car, Briefcase, Heart, Monitor, Table2, Tent, X, ArrowRight } from 'lucide-react'
+import { Plus, Calendar, Clock, Users, Car, Briefcase, Heart, Monitor, Table2, Tent, X, ArrowRight, Pencil } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -32,6 +32,7 @@ export default function TurniPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [volunteers, setVolunteers] = useState<Profile[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState<ShiftFull | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState('tutti')
   const [form, setForm] = useState({
@@ -74,27 +75,36 @@ export default function TurniPage() {
     setError(null)
     if (!profile?.id || !profile?.organization_id) { setError('Profilo non trovato'); return }
     try {
-      const { data: newShift, error: err } = await supabase.from('shifts').insert({
-        organization_id: profile.organization_id, title: form.title, description: form.description,
+      const data = {
+        title: form.title, description: form.description,
         start_time: form.start_time, end_time: form.end_time, type: form.type,
         max_volunteers: form.max_volunteers, vehicle_id: form.vehicle_id || null,
         borsoni: form.borsoni, dae: form.dae, rollup: form.rollup, desk: form.desk, gazebo: form.gazebo,
-        equipment_notes: form.equipment_notes || null, status: 'aperto', created_by: profile.id,
-      }).select()
-      if (err) throw err
-
-      if (selectedVolunteers.length > 0 && newShift?.[0]?.id) {
-        const { error: aErr } = await supabase.from('shift_assignments').insert(
-          selectedVolunteers.map(vId => ({ shift_id: newShift[0].id, profile_id: vId, status: 'assegnato' as const }))
-        )
-        if (aErr) throw aErr
+        equipment_notes: form.equipment_notes || null,
       }
 
-      setShowForm(false)
+      if (editing) {
+        const { error: err } = await supabase.from('shifts').update(data).eq('id', editing.id)
+        if (err) throw err
+      } else {
+        const { data: newShift, error: err } = await supabase.from('shifts').insert({
+          ...data, organization_id: profile.organization_id, status: 'aperto', created_by: profile.id,
+        }).select()
+        if (err) throw err
+
+        if (selectedVolunteers.length > 0 && newShift?.[0]?.id) {
+          const { error: aErr } = await supabase.from('shift_assignments').insert(
+            selectedVolunteers.map(vId => ({ shift_id: newShift[0].id, profile_id: vId, status: 'assegnato' as const }))
+          )
+          if (aErr) throw aErr
+        }
+      }
+
+      setShowForm(false); setEditing(null)
       setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', borsoni: 0, dae: 0, rollup: 0, desk: 0, gazebo: 0, equipment_notes: '' })
       setSelectedVolunteers([])
       loadShifts()
-    } catch (err: any) { setError(err.message || 'Errore durante la creazione del turno') }
+    } catch (err: any) { setError(err.message || 'Errore durante il salvataggio del turno') }
   }
 
   async function handleStatusChange(id: string, status: Shift['status']) {
@@ -104,6 +114,20 @@ export default function TurniPage() {
 
   function toggleVolunteer(id: string) {
     setSelectedVolunteers(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id])
+  }
+
+  function handleEdit(shift: ShiftFull) {
+    setEditing(shift)
+    setForm({
+      title: shift.title, description: shift.description || '',
+      start_time: shift.start_time.slice(0, 16), end_time: shift.end_time.slice(0, 16),
+      type: shift.type, max_volunteers: shift.max_volunteers,
+      vehicle_id: shift.vehicle_id || '',
+      borsoni: shift.borsoni, dae: shift.dae, rollup: shift.rollup, desk: shift.desk, gazebo: shift.gazebo,
+      equipment_notes: shift.equipment_notes || '',
+    })
+    setSelectedVolunteers(shift.shift_assignments?.map(a => a.profile_id) || [])
+    setShowForm(true)
   }
 
   const statusStyles: Record<string, string> = {
@@ -126,7 +150,7 @@ export default function TurniPage() {
           <h1 className="text-2xl font-bold text-gray-900">Turni</h1>
           <p className="text-gray-400 text-sm mt-0.5">Gestione turni, mezzi e attrezzatura</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
+        <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', borsoni: 0, dae: 0, rollup: 0, desk: 0, gazebo: 0, equipment_notes: '' }); setSelectedVolunteers([]); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
           <Plus className="w-4 h-4" /> Nuovo Turno
         </button>
       </div>
@@ -150,7 +174,7 @@ export default function TurniPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-semibold text-gray-900">Nuovo Turno</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{editing ? 'Modifica' : 'Nuovo'} Turno</h2>
               <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -224,8 +248,8 @@ export default function TurniPage() {
                 {selectedVolunteers.length > 0 && <p className="text-xs text-gray-400 mt-1">{selectedVolunteers.length} selezionati</p>}
               </div>
               <div className="flex gap-3 pt-1">
-                <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">Crea Turno</button>
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2.5 bg-white text-gray-600 rounded-xl text-sm font-medium border border-gray-200 hover:border-gray-300 transition-all">Annulla</button>
+                <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">{editing ? 'Salva' : 'Crea Turno'}</button>
+                <button type="button" onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="flex-1 py-2.5 bg-white text-gray-600 rounded-xl text-sm font-medium border border-gray-200 hover:border-gray-300 transition-all">Annulla</button>
               </div>
             </form>
           </div>
@@ -306,6 +330,7 @@ export default function TurniPage() {
 
               {/* Actions */}
               <div className="flex gap-1.5 flex-shrink-0">
+                <button onClick={() => handleEdit(shift)} className="p-1.5 text-gray-300 hover:text-blue-500 transition-colors"><Pencil className="w-4 h-4" /></button>
                 {shift.status === 'aperto' && (
                   <button onClick={() => handleStatusChange(shift.id, 'chiuso')} className="flex items-center gap-1 text-xs px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 border border-amber-200 transition-colors">
                     Chiudi <ArrowRight className="w-3 h-3" />
