@@ -7,6 +7,8 @@
 
 Gestionale per associazioni di volontariato — turni, presenze, mezzi e volontari.
 
+**Live:** [https://mrbraun71.github.io/Logistica/](https://mrbraun71.github.io/Logistica/)
+
 ---
 
 ## Tech Stack
@@ -50,6 +52,24 @@ Variabili d'ambiente (`.env`):
 ```
 VITE_SUPABASE_URL=https://tuo-progetto.supabase.co
 VITE_SUPABASE_ANON_KEY=tua-chave-anon
+```
+
+## Deploy su GitHub Pages
+
+Il deploy è automatico via GitHub Actions: ogni push su `main` o `master` builda e pubblica su Pages.
+
+**Abilitazione (una volta sola):**
+
+1. Vai su **Settings > Pages** del repository
+2. In "Build and deployment" seleziona **GitHub Actions**
+3. Fai un push su `main` — il workflow parte automaticamente
+
+Per fare un deploy manuale:
+
+```bash
+npm run build
+# copia per SPA routing (già nel workflow)
+cp dist/index.html dist/404.html
 ```
 
 ## Database

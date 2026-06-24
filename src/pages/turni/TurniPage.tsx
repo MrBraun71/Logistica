@@ -286,7 +286,7 @@ export default function TurniPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400">{shift.shift_assignments.length} volontari</span>
                     <div className="flex -space-x-2">
-                      {shift.shift_assignments.slice(0, 5).map((a, i) => (
+                      {shift.shift_assignments.slice(0, 5).map((a) => (
                         <div key={a.id} className={`w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-medium shadow-sm ${
                           a.status === 'confermato' ? 'bg-emerald-100 text-emerald-600' :
                           a.status === 'rifiutato' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'

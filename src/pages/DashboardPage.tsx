@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { Users, CalendarDays, ClipboardCheck, Car, Clock, ArrowRight, Calendar, MapPin } from 'lucide-react'
+import { Users, CalendarDays, ClipboardCheck, Car, Clock, Calendar, MapPin } from 'lucide-react'
 import type { Shift, Attendance, Profile } from '../types/database'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                       {a.check_out_time && <span> → {format(parseISO(a.check_out_time), "HH:mm")}</span>}
                     </p>
                   </div>
-                  {a.check_in_location && (
+                  {!!a.check_in_location && (
                     <MapPin className="w-4 h-4 text-gray-300 flex-shrink-0" />
                   )}
                 </div>
