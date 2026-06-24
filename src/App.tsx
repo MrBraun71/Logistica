@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { isSupabaseConfigured } from './lib/supabase'
 import { AppLayout } from './components/layout/AppLayout'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
@@ -23,8 +24,32 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function ConfigCheck({ children }: { children: React.ReactNode }) {
+  if (!isSupabaseConfigured()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-rose-400 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-red-200">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01" /></svg>
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Configurazione mancante</h1>
+          <p className="text-sm text-gray-400 mb-6">
+            Imposta le variabili <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">VITE_SUPABASE_URL</code> e{' '}
+            <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">VITE_SUPABASE_ANON_KEY</code> nel workflow GitHub.
+          </p>
+          <p className="text-xs text-gray-400">
+            Vedi il README per le istruzioni di configurazione.
+          </p>
+        </div>
+      </div>
+    )
+  }
+  return <>{children}</>
+}
+
 export default function App() {
   return (
+    <ConfigCheck>
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -41,5 +66,6 @@ export default function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </ConfigCheck>
   )
 }
