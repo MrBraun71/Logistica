@@ -50,7 +50,7 @@ function ConfigCheck({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <ConfigCheck>
-    <BrowserRouter>
+    <BrowserRouter basename="/Logistica">
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />

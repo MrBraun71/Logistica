@@ -33,7 +33,7 @@ export default function DashboardPage() {
         supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).gte('start_time', new Date().toISOString()),
         supabase.from('attendance').select('id', { count: 'exact' }).eq('organization_id', orgId).gte('check_in_time', new Date().toISOString().slice(0, 10)),
         supabase.from('vehicles').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('is_active', true),
-        supabase.from('shifts').select('*, shift_assignments(*, profiles!profile_id(first_name, last_name))').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(5),
+        supabase.from('shifts').select('*').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(5),
         supabase.from('attendance').select('*, profiles!profile_id(first_name, last_name)').eq('organization_id', orgId).not('check_in_time', 'is', null).order('check_in_time', { ascending: false }).limit(5),
       ])
 

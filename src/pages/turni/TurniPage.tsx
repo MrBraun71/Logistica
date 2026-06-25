@@ -50,7 +50,7 @@ export default function TurniPage() {
     if (!profile?.organization_id) return
     const { data } = await supabase
       .from('shifts')
-      .select('*, vehicles!vehicle_id(*), shift_assignments(*, profiles!profile_id(*))')
+      .select('*, vehicles!vehicle_id(*), shift_assignments(*, profiles:profile_id(*))')
       .eq('organization_id', profile.organization_id)
       .order('start_time', { ascending: false })
     if (data) setShifts(data)
