@@ -22,10 +22,12 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({ volunteers: 0, shifts: 0, attendances: 0, vehicles: 0 })
   const [upcomingShifts, setUpcomingShifts] = useState<ShiftWithProfiles[]>([])
   const [recentActivity, setRecentActivity] = useState<(Attendance & { profiles?: Profile })[]>([])
+  const [queryErrors, setQueryErrors] = useState<string[]>([])
 
   useEffect(() => {
     if (!profile?.organization_id) return
     const orgId = profile.organization_id
+    const errors: string[] = []
 
     async function load() {
       const [p, sc, ac, vc, sr, ra] = await Promise.all([
@@ -36,6 +38,14 @@ export default function DashboardPage() {
         supabase.from('shifts').select('*').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(5),
         supabase.from('attendance').select('*, profiles!profile_id(first_name, last_name)').eq('organization_id', orgId).not('check_in_time', 'is', null).order('check_in_time', { ascending: false }).limit(5),
       ])
+
+      if (p.error) errors.push(`volontari: ${p.error.message}`)
+      if (sc.error) errors.push(`turni count: ${sc.error.message}`)
+      if (ac.error) errors.push(`presenze: ${ac.error.message}`)
+      if (vc.error) errors.push(`veicoli: ${vc.error.message}`)
+      if (sr.error) errors.push(`turni upcoming: ${sr.error.message}`)
+      if (ra.error) errors.push(`attività: ${ra.error.message}`)
+      if (errors.length > 0) setQueryErrors(errors)
 
       setStats({
         volunteers: p.count ?? 0, shifts: sc.count ?? 0,
@@ -151,6 +161,15 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {queryErrors.length > 0 && (
+        <details className="text-xs text-red-500 bg-red-50 rounded-xl p-3 border border-red-100">
+          <summary className="cursor-pointer font-medium">Errori query ({queryErrors.length})</summary>
+          <ul className="mt-2 space-y-1 list-disc pl-4">
+            {queryErrors.map((e, i) => <li key={i}>{e}</li>)}
+          </ul>
+        </details>
+      )}
     </div>
   )
 }
