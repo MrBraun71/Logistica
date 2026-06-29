@@ -39,6 +39,7 @@ export default function TurniPage() {
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState('tutti')
   const [equipSearch, setEquipSearch] = useState('')
+  const [equipSearchMode, setEquipSearchMode] = useState<'tutti' | 'id' | 'categoria'>('tutti')
   const [form, setForm] = useState({
     title: '', description: '', start_time: '', end_time: '',
     type: 'ordinario' as Shift['type'], max_volunteers: 1,
@@ -81,9 +82,13 @@ export default function TurniPage() {
 
   const filtered = filter === 'tutti' ? shifts : shifts.filter(s => s.status === filter)
 
-  const equipFiltered = equipmentItems.filter(e =>
-    !equipSearch || `${e.articolo} ${e.id_numero} ${e.marca} ${e.modello} ${e.categoria} ${e.sede}`.toLowerCase().includes(equipSearch.toLowerCase())
-  )
+  const equipFiltered = equipmentItems.filter(e => {
+    if (!equipSearch) return true
+    const q = equipSearch.toLowerCase()
+    if (equipSearchMode === 'id') return e.id_numero.toLowerCase().includes(q)
+    if (equipSearchMode === 'categoria') return e.categoria.toLowerCase().includes(q)
+    return `${e.articolo} ${e.id_numero} ${e.categoria} ${e.marca} ${e.modello} ${e.sede}`.toLowerCase().includes(q)
+  })
 
   const equipGrouped = equipFiltered.reduce<Record<string, Equipment[]>>((acc, e) => {
     const cat = e.categoria || 'Altro'
@@ -284,10 +289,22 @@ export default function TurniPage() {
               {/* Equipment from inventory */}
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-2">Attrezzatura da Inventario</label>
-                <div className="relative mb-2">
+                <div className="relative mb-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
                   <input type="text" placeholder="Cerca attrezzatura..." value={equipSearch} onChange={e => setEquipSearch(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" />
+                </div>
+                <div className="flex gap-1 mb-2">
+                  {(['tutti', 'id', 'categoria'] as const).map(mode => (
+                    <button key={mode} type="button" onClick={() => setEquipSearchMode(mode)}
+                      className={`text-[10px] px-2 py-1 rounded-lg font-medium transition-colors ${
+                        equipSearchMode === mode
+                          ? 'bg-blue-100 text-blue-600'
+                          : 'bg-gray-50 text-gray-400 hover:text-gray-600'
+                      }`}>
+                      {mode === 'tutti' ? 'Tutto' : mode === 'id' ? 'ID' : 'Categoria'}
+                    </button>
+                  ))}
                 </div>
                 <div className="border border-gray-100 rounded-xl p-3 max-h-48 overflow-y-auto bg-gray-50/50 space-y-2">
                   {Object.entries(equipGrouped).map(([cat, items]) => (

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, Users, CalendarDays, ClipboardCheck, Car, LogOut, Menu, X, Bell, User, Package,
+  LayoutDashboard, Users, CalendarDays, Car, LogOut, Menu, X, Bell, User, Package,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -13,7 +13,6 @@ const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/anagrafiche', icon: Users, label: 'Anagrafiche' },
   { to: '/turni', icon: CalendarDays, label: 'Turni' },
-  { to: '/presenze', icon: ClipboardCheck, label: 'Presenze' },
   { to: '/veicoli', icon: Car, label: 'Veicoli' },
   { to: '/inventario', icon: Package, label: 'Inventario' },
 ]
@@ -22,7 +21,6 @@ const navGradients: Record<string, string> = {
   '/dashboard': 'from-blue-500 to-cyan-400',
   '/anagrafiche': 'from-violet-500 to-purple-400',
   '/turni': 'from-emerald-500 to-green-400',
-  '/presenze': 'from-orange-500 to-amber-400',
   '/veicoli': 'from-rose-500 to-pink-400',
   '/inventario': 'from-violet-500 to-purple-400',
 }

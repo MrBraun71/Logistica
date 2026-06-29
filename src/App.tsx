@@ -7,7 +7,6 @@ import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import AnagrafichePage from './pages/anagrafiche/AnagrafichePage'
 import TurniPage from './pages/turni/TurniPage'
-import PresenzePage from './pages/presenze/PresenzePage'
 import VeicoliPage from './pages/veicoli/VeicoliPage'
 import InventarioPage from './pages/inventario/InventarioPage'
 
@@ -60,7 +59,6 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/anagrafiche" element={<AnagrafichePage />} />
             <Route path="/turni" element={<TurniPage />} />
-            <Route path="/presenze" element={<PresenzePage />} />
             <Route path="/veicoli" element={<VeicoliPage />} />
             <Route path="/inventario" element={<InventarioPage />} />
           </Route>
