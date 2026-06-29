@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { Shift, Vehicle } from '../types/database'
+import type { Shift, Vehicle, Equipment, ShiftEquipment } from '../types/database'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 interface ShiftWithVehicle extends Shift {
   vehicles?: Vehicle
+  shift_equipment?: (ShiftEquipment & { equipment?: Equipment })[]
 }
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
@@ -27,7 +28,7 @@ export default function DashboardPage() {
       const [sc, vc, sr] = await Promise.all([
         supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).gte('start_time', new Date().toISOString()),
         supabase.from('vehicles').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('is_active', true),
-        supabase.from('shifts').select('*, vehicles!vehicle_id(*)').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(10),
+        supabase.from('shifts').select('*, vehicles!vehicle_id(*), shift_equipment(*, equipment:equipment_id(*))').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(10),
       ])
 
       setShiftCount(sc.count ?? 0)
@@ -53,8 +54,8 @@ export default function DashboardPage() {
       </section>
 
       {/* Stats Cards */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl flex items-center gap-lg">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-lg flex items-center gap-lg">
           <div className="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
             <Icon name="calendar_month" className="text-3xl" />
           </div>
@@ -64,7 +65,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl flex items-center gap-lg">
+        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-lg flex items-center gap-lg">
           <div className="w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
             <Icon name="local_shipping" className="text-3xl" />
           </div>
@@ -73,27 +74,10 @@ export default function DashboardPage() {
             <h3 className="text-headline-md text-on-surface">{vehicleCount} Mezzi Attivi</h3>
           </div>
         </div>
-
-        <div className="md:col-span-2 relative bg-primary overflow-hidden rounded-xl p-lg flex flex-col justify-between text-on-primary">
-          <div className="relative z-10">
-            <h3 className="text-headline-md mb-xs">Stato Logistica</h3>
-            <p className="text-on-primary/80 text-body-sm">Efficienza operativa al 94% questa settimana.</p>
-          </div>
-          <div className="relative z-10 mt-xl flex items-center gap-4">
-            <div className="flex -space-x-2">
-              {['a', 'b', 'c'].map((_, i) => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-primary bg-on-primary/20 flex items-center justify-center text-xs">
-                  {profile?.first_name?.[i] || '?'}
-                </div>
-              ))}
-            </div>
-            <span className="text-label-xs">+12 operatori in linea</span>
-          </div>
-        </div>
       </section>
 
       {/* Upcoming Shifts Table */}
-      <section className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+      <section className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
         <div className="p-lg border-b border-outline-variant flex justify-between items-center">
           <div className="flex items-center gap-sm">
             <Icon name="list_alt" className="text-primary" />
@@ -116,6 +100,7 @@ export default function DashboardPage() {
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Nome Turno</th>
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Orario</th>
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Mezzo</th>
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Attrezzatura</th>
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Stato</th>
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Azioni</th>
                 </tr>
@@ -146,6 +131,20 @@ export default function DashboardPage() {
                       </div>
                     </td>
                     <td className="px-lg py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {s.shift_equipment && s.shift_equipment.length > 0 ? (
+                          s.shift_equipment.map(se => (
+                            <span key={se.id} className="inline-flex items-center gap-1 text-label-xs bg-surface-container-high px-2 py-0.5 rounded whitespace-nowrap">
+                              <Icon name="inventory_2" className="text-[14px]" />
+                              {se.equipment?.articolo || se.equipment_id.slice(0, 6)}{se.quantity > 1 ? ` x${se.quantity}` : ''}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-label-xs text-on-surface-variant">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-lg py-4">
                       <span className={`px-3 py-1 rounded-full text-label-xs font-semibold uppercase tracking-wide ${
                         s.status === 'aperto' ? 'shift-status-aperto' :
                         s.status === 'chiuso' ? 'bg-amber-50 text-amber-700' :
@@ -166,11 +165,11 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* Mappa Operativa Real-Time */}
+      {/* Mappa Operativa Real-Time e Promemoria Flotta */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-        <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+        <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant p-lg rounded-lg">
           <h3 className="text-title-sm text-on-surface mb-md">Mappa Operativa Real-Time</h3>
-          <div className="relative h-[300px] w-full rounded-lg bg-surface-container-high overflow-hidden">
+          <div className="relative h-[300px] w-full rounded bg-surface-container-high overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-primary-container/20 to-surface-container-high flex items-center justify-center">
               <div className="text-center text-on-surface-variant">
                 <Icon name="map" className="text-5xl mb-2 opacity-40" />
@@ -178,35 +177,35 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-              <div className="bg-white/90 backdrop-blur-md p-3 rounded-lg shadow-lg text-on-surface">
+              <div className="bg-white/90 backdrop-blur-md p-3 rounded shadow-lg text-on-surface">
                 <p className="text-label-xs font-bold uppercase mb-1">Hub Principale</p>
                 <p className="text-body-sm">Milano Nord - Terminal A</p>
               </div>
               <div className="flex flex-col gap-2">
-                <button className="w-10 h-10 rounded-lg bg-white shadow-md flex items-center justify-center text-primary"><Icon name="add" /></button>
-                <button className="w-10 h-10 rounded-lg bg-white shadow-md flex items-center justify-center text-primary"><Icon name="remove" /></button>
+                <button className="w-10 h-10 rounded bg-white shadow-md flex items-center justify-center text-primary"><Icon name="add" /></button>
+                <button className="w-10 h-10 rounded bg-white shadow-md flex items-center justify-center text-primary"><Icon name="remove" /></button>
               </div>
             </div>
           </div>
         </div>
-        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-lg">
           <h3 className="text-title-sm text-on-surface mb-md">Promemoria Flotta</h3>
           <div className="space-y-4">
-            <div className="flex items-start gap-md p-3 rounded-lg hover:bg-surface-container-high transition-colors">
+            <div className="flex items-start gap-md p-3 rounded hover:bg-surface-container-high transition-colors">
               <div className="mt-1 w-2 h-2 rounded-full bg-error"></div>
               <div>
                 <p className="text-body-sm font-medium text-on-surface">Scadenza Assicurazione</p>
                 <p className="text-label-xs text-on-surface-variant">Veicolo in scadenza tra 2 giorni.</p>
               </div>
             </div>
-            <div className="flex items-start gap-md p-3 rounded-lg hover:bg-surface-container-high transition-colors">
+            <div className="flex items-start gap-md p-3 rounded hover:bg-surface-container-high transition-colors">
               <div className="mt-1 w-2 h-2 rounded-full bg-primary"></div>
               <div>
                 <p className="text-body-sm font-medium text-on-surface">Revisione Veicoli</p>
                 <p className="text-label-xs text-on-surface-variant">Pianificare revisione entro venerdì.</p>
               </div>
             </div>
-            <div className="flex items-start gap-md p-3 rounded-lg hover:bg-surface-container-high transition-colors">
+            <div className="flex items-start gap-md p-3 rounded hover:bg-surface-container-high transition-colors">
               <div className="mt-1 w-2 h-2 rounded-full bg-tertiary"></div>
               <div>
                 <p className="text-body-sm font-medium text-on-surface">Aggiornamento Documenti</p>
@@ -214,7 +213,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <button className="w-full mt-lg py-2 text-primary text-title-sm border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">
+          <button className="w-full mt-lg py-2 text-primary text-title-sm border border-primary/20 rounded hover:bg-primary/5 transition-colors">
             Gestisci Promemoria
           </button>
         </div>

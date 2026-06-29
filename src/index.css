@@ -90,8 +90,8 @@
   --text-headline-md-mobile--font-weight: 600;
 
   --radius-sm: 0.25rem;
-  --radius-md: 0.75rem;
-  --radius-xl: 1.5rem;
+  --radius-md: 0.5rem;
+  --radius-xl: 0.75rem;
 }
 
 body {
