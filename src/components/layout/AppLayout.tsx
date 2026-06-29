@@ -73,8 +73,8 @@ export function AppLayout() {
         <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar (Desktop) */}
-      <aside className="w-[260px] h-screen fixed left-0 top-0 bg-surface-container-lowest hidden lg:flex flex-col py-6 px-4 z-50 shadow-[0_0_20px_rgba(29,53,128,0.06)]">
+      {/* Sidebar */}
+      <aside className={`w-[260px] h-screen fixed left-0 top-0 bg-surface-container-lowest flex-col py-6 px-4 z-50 shadow-[0_0_20px_rgba(29,53,128,0.06)] transition-transform duration-300 ${sidebarOpen ? 'flex' : 'hidden'} lg:flex`}>
         <div className="mb-8 px-2">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
