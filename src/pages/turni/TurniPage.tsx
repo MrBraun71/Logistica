@@ -202,14 +202,14 @@ export default function TurniPage() {
             {/* Left column: Main Details + Equipment */}
             <div className="lg:col-span-8 space-y-3">
               {/* Main Details */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 soft-card-shadow">
-                <div className="flex items-center gap-3 mb-6">
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 sm:p-6 soft-card-shadow overflow-hidden">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
                   <div className="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary">
                     <Icon name="edit_note" />
                   </div>
                   <h3 className="text-title-sm">Dettagli Principali</h3>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="group">
                     <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Titolo del turno</label>
                       <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="es. Emergenza Sanitaria Mattutina" required />
@@ -218,14 +218,14 @@ export default function TurniPage() {
                     <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Descrizione</label>
                     <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Inserisci note operative, istruzioni per i volontari o dettagli logistici particolari..." rows={4} />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="group min-w-0">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Inizio</label>
-                      <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full h-11 px-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all min-w-0" required />
+                      <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full h-11 px-2 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all min-w-0" required />
                     </div>
                     <div className="group min-w-0">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Fine</label>
-                      <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full h-11 px-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all min-w-0" required />
+                      <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full h-11 px-2 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all min-w-0" required />
                     </div>
                   </div>
                 </div>
@@ -314,14 +314,14 @@ export default function TurniPage() {
 
             {/* Right column: Configuration */}
             <div className="lg:col-span-4 space-y-3">
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 soft-card-shadow">
-                <div className="flex items-center gap-3 mb-6">
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 sm:p-6 soft-card-shadow overflow-hidden">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
                   <div className="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
                     <Icon name="settings_suggest" />
                   </div>
                   <h3 className="text-title-sm">Configurazione</h3>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
                     <label className="block text-label-xs text-on-surface-variant mb-1">Tipo di Turno</label>
                     <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as Shift['type'] })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all">
