@@ -218,14 +218,14 @@ export default function TurniPage() {
                     <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Descrizione</label>
                     <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Inserisci note operative, istruzioni per i volontari o dettagli logistici particolari..." rows={4} />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="group">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+                    <div className="group min-w-0">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Inizio</label>
-                      <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full max-w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
+                      <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full h-11 px-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all min-w-0" required />
                     </div>
-                    <div className="group">
+                    <div className="group min-w-0">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Fine</label>
-                      <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full max-w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
+                      <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full h-11 px-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all min-w-0" required />
                     </div>
                   </div>
                 </div>
@@ -483,7 +483,7 @@ export default function TurniPage() {
                       <span className={`px-3 py-1 rounded-full text-label-xs font-semibold uppercase tracking-wide ${statusStyles[s.status] || ''}`}>{s.status}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         {isAdmin && (
                           <button onClick={() => {
                             setEditing(s)
