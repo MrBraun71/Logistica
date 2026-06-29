@@ -164,6 +164,14 @@ export default function TurniPage() {
     loadShifts()
   }
 
+  async function handleDeleteShift(id: string) {
+    if (!confirm('Eliminare questo turno? L\'operazione è irreversibile.')) return
+    await supabase.from('shift_vehicles').delete().eq('shift_id', id)
+    await supabase.from('shift_equipment').delete().eq('shift_id', id)
+    await supabase.from('shifts').delete().eq('id', id)
+    loadShifts()
+  }
+
   function toggleEquipment(id: string) {
     setSelectedEquipment(prev => prev[id] ? { ...prev, [id]: prev[id] + 1 } : { ...prev, [id]: 1 })
   }
@@ -507,6 +515,11 @@ export default function TurniPage() {
                         {s.status === 'chiuso' && isAdmin && (
                           <button onClick={() => handleStatusChange(s.id, 'completato')} className="px-3 py-1 text-status-label font-bold bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 border border-emerald-200 transition-colors">
                             Completa
+                          </button>
+                        )}
+                        {isAdmin && (
+                          <button onClick={() => handleDeleteShift(s.id)} className="p-2 hover:bg-error-container rounded-full transition-colors text-on-surface-variant hover:text-error" title="Elimina">
+                            <Icon name="delete" className="text-[20px]" />
                           </button>
                         )}
                       </div>

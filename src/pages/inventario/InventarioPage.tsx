@@ -75,6 +75,12 @@ export default function InventarioPage() {
     } catch (err: any) { setError(err.message || 'Errore') }
   }
 
+  async function handleDeleteItem(id: string) {
+    if (!confirm('Eliminare questo articolo? L\'operazione è irreversibile.')) return
+    await supabase.from('equipment').delete().eq('id', id)
+    loadItems()
+  }
+
   function startEdit(item: Equipment) {
     setEditing(item)
     setForm({
@@ -201,6 +207,9 @@ export default function InventarioPage() {
                       <button onClick={() => startEdit(item)} className="p-1.5 text-on-surface-variant hover:text-primary transition-colors"><Icon name="edit" className="text-[18px]" /></button>
                       <button onClick={() => handleToggleActive(item)} className={`p-1.5 transition-colors ${item.is_active ? 'text-on-surface-variant hover:text-amber-500' : 'text-amber-400 hover:text-primary'}`}>
                         <Icon name={item.is_active ? 'toggle_off' : 'toggle_on'} className="text-[18px]" />
+                      </button>
+                      <button onClick={() => handleDeleteItem(item.id)} className="p-1.5 text-on-surface-variant hover:text-error transition-colors" title="Elimina">
+                        <Icon name="delete" className="text-[18px]" />
                       </button>
                     </div>
                   </td>

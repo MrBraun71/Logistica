@@ -62,6 +62,13 @@ export default function VeicoliPage() {
     loadVehicles()
   }
 
+  async function handleDeleteVehicle(id: string) {
+    if (!confirm('Eliminare questo veicolo? L\'operazione è irreversibile.')) return
+    await supabase.from('shift_vehicles').delete().eq('vehicle_id', id)
+    await supabase.from('vehicles').delete().eq('id', id)
+    loadVehicles()
+  }
+
   return (
     <div className="max-w-[1080px] mx-auto space-y-8">
       <div className="flex items-center justify-between">
@@ -123,6 +130,9 @@ export default function VeicoliPage() {
                 <button onClick={() => startEdit(v)} className="p-1.5 text-on-surface-variant hover:text-primary transition-colors"><Icon name="edit" className="text-[18px]" /></button>
                 <button onClick={() => handleToggleActive(v)} className="p-1.5 text-on-surface-variant hover:text-error transition-colors">
                   <Icon name={v.is_active ? 'toggle_off' : 'toggle_on'} className="text-[18px]" />
+                </button>
+                <button onClick={() => handleDeleteVehicle(v.id)} className="p-1.5 text-on-surface-variant hover:text-error transition-colors" title="Elimina">
+                  <Icon name="delete" className="text-[18px]" />
                 </button>
               </div>
             </div>
