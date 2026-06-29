@@ -5,7 +5,6 @@ import { AppLayout } from './components/layout/AppLayout'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
-import AnagrafichePage from './pages/anagrafiche/AnagrafichePage'
 import TurniPage from './pages/turni/TurniPage'
 import VeicoliPage from './pages/veicoli/VeicoliPage'
 import InventarioPage from './pages/inventario/InventarioPage'
@@ -57,7 +56,6 @@ export default function App() {
           <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/anagrafiche" element={<AnagrafichePage />} />
             <Route path="/turni" element={<TurniPage />} />
             <Route path="/veicoli" element={<VeicoliPage />} />
             <Route path="/inventario" element={<InventarioPage />} />
