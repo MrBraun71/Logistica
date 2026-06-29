@@ -333,8 +333,9 @@ export default function TurniPage() {
                     <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as Shift['type'] })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all">
                       <option value="ordinario">Ordinario</option>
                       <option value="straordinario">Straordinario</option>
-                      <option value="emergenza">Emergenza 118</option>
-                      <option value="evento">Logistico/Manutenzione</option>
+                      <option value="rappresentanza">Rappresentanza</option>
+                      <option value="evento">Evento</option>
+                      <option value="sanitario">Sanitario</option>
                     </select>
                   </div>
                   <div>

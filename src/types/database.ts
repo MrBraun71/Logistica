@@ -47,7 +47,7 @@ export interface Shift {
   description: string | null
   start_time: string
   end_time: string
-  type: 'ordinario' | 'straordinario' | 'emergenza' | 'evento'
+  type: 'ordinario' | 'straordinario' | 'rappresentanza' | 'evento' | 'sanitario'
   vehicle_id: string | null
   max_volunteers: number
   borsoni: number
