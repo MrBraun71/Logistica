@@ -119,7 +119,7 @@ export default function VeicoliPage() {
               <div className="w-12 h-12 rounded-2xl bg-primary-container/10 flex items-center justify-center">
                 <Icon name={typeIcone[v.type as keyof typeof typeIcone] || 'directions_car'} className="text-primary text-2xl" />
               </div>
-              <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-1">
                 <button onClick={() => startEdit(v)} className="p-1.5 text-on-surface-variant hover:text-primary transition-colors"><Icon name="edit" className="text-[18px]" /></button>
                 <button onClick={() => handleToggleActive(v)} className="p-1.5 text-on-surface-variant hover:text-error transition-colors">
                   <Icon name={v.is_active ? 'toggle_off' : 'toggle_on'} className="text-[18px]" />

@@ -481,7 +481,7 @@ export default function TurniPage() {
                       <span className={`px-3 py-1 rounded-full text-label-xs font-semibold uppercase tracking-wide ${statusStyles[s.status] || ''}`}>{s.status}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-1">
                         {isAdmin && (
                           <button onClick={() => {
                             setEditing(s)
