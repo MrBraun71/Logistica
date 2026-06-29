@@ -109,6 +109,20 @@ export function AppLayout() {
               <span className="text-body-md">{item.label}</span>
             </NavLink>
           ))}
+          <NavLink
+            to="/supporto"
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-4 px-4 py-3 rounded-lg transition-colors ${
+                isActive
+                  ? 'text-primary font-semibold bg-primary-container/10 border-r-2 border-primary'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`
+            }
+          >
+            <Icon name="help" />
+            <span className="text-body-md">Supporto</span>
+          </NavLink>
         </nav>
 
         <div className="pt-6 mt-auto border-t border-outline-variant">
@@ -118,10 +132,6 @@ export function AppLayout() {
           >
             <Icon name="add" /> Nuovo Turno
           </button>
-          <span className="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-default">
-            <Icon name="help" />
-            <span className="text-body-md">Supporto</span>
-          </span>
         </div>
       </aside>
 
