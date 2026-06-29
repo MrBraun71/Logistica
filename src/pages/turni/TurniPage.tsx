@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import type { Shift, ShiftAssignment, Vehicle, Profile, Equipment, ShiftEquipment } from '../../types/database'
+import type { Shift, ShiftAssignment, Vehicle, Profile, Equipment, ShiftEquipment, ShiftVehicle } from '../../types/database'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 interface ShiftFull extends Shift {
   vehicles?: Vehicle
+  shift_vehicles?: (ShiftVehicle & { vehicles?: Vehicle })[]
   shift_assignments?: (ShiftAssignment & { profiles?: Profile })[]
   shift_equipment?: (ShiftEquipment & { equipment?: Equipment })[]
 }
@@ -38,8 +39,8 @@ export default function TurniPage() {
   const [form, setForm] = useState({
     title: '', description: '', start_time: '', end_time: '',
     type: 'ordinario' as Shift['type'], max_volunteers: 1,
-    vehicle_id: '',
   })
+  const [selectedVehicles, setSelectedVehicles] = useState<string[]>([])
   const [selectedEquipment, setSelectedEquipment] = useState<Record<string, number>>({})
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function TurniPage() {
     if (!profile?.organization_id) return
     const { data } = await supabase
       .from('shifts')
-      .select('*, vehicles!vehicle_id(*), shift_assignments(*, profiles:profile_id(*)), shift_equipment(*, equipment:equipment_id(*))')
+      .select('*, shift_vehicles(*, vehicles:vehicle_id(*)), shift_assignments(*, profiles:profile_id(*)), shift_equipment(*, equipment:equipment_id(*))')
       .eq('organization_id', profile.organization_id)
       .order('start_time', { ascending: false })
     if (data) setShifts(data)
@@ -78,6 +79,10 @@ export default function TurniPage() {
     return `${e.articolo} ${e.id_numero} ${e.categoria}`.toLowerCase().includes(q)
   })
 
+  function toggleVehicle(id: string) {
+    setSelectedVehicles(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id])
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -86,13 +91,19 @@ export default function TurniPage() {
       const shiftData = {
         title: form.title, description: form.description,
         start_time: form.start_time, end_time: form.end_time, type: form.type,
-        max_volunteers: form.max_volunteers, vehicle_id: form.vehicle_id || null,
+        max_volunteers: form.max_volunteers,
       }
+
+      const shiftId = editing ? editing.id : null
 
       if (editing) {
         const { error: err } = await supabase.from('shifts').update(shiftData).eq('id', editing.id)
         if (err) throw err
+        await supabase.from('shift_vehicles').delete().eq('shift_id', editing.id)
         await supabase.from('shift_equipment').delete().eq('shift_id', editing.id)
+        if (selectedVehicles.length > 0) {
+          await supabase.from('shift_vehicles').insert(selectedVehicles.map(v => ({ shift_id: editing.id, vehicle_id: v })))
+        }
         const seEntries = Object.entries(selectedEquipment).filter(([, qty]) => qty > 0)
         if (seEntries.length > 0) {
           const { error: seErr } = await supabase.from('shift_equipment').insert(
@@ -107,11 +118,14 @@ export default function TurniPage() {
         if (err) throw err
 
         if (newShift?.[0]?.id) {
-          const shiftId = newShift[0].id
+          const sid = newShift[0].id
+          if (selectedVehicles.length > 0) {
+            await supabase.from('shift_vehicles').insert(selectedVehicles.map(v => ({ shift_id: sid, vehicle_id: v })))
+          }
           const seEntries = Object.entries(selectedEquipment).filter(([, qty]) => qty > 0)
           if (seEntries.length > 0) {
             const { error: seErr } = await supabase.from('shift_equipment').insert(
-              seEntries.map(([eqId, qty]) => ({ shift_id: shiftId, equipment_id: eqId, quantity: qty }))
+              seEntries.map(([eqId, qty]) => ({ shift_id: sid, equipment_id: eqId, quantity: qty }))
             )
             if (seErr) throw seErr
           }
@@ -128,7 +142,8 @@ export default function TurniPage() {
       }
 
       setShowForm(false); setEditing(null)
-      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '' })
+      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1 })
+      setSelectedVehicles([])
       setSelectedEquipment({})
       loadShifts()
     } catch (err: any) { setError(err.message || 'Errore durante il salvataggio del turno') }
@@ -325,11 +340,20 @@ export default function TurniPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-label-xs text-on-surface-variant mb-1">Veicolo Assegnato</label>
-                    <select value={form.vehicle_id} onChange={e => setForm({ ...form, vehicle_id: e.target.value })} className="w-full h-11 px-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all">
-                      <option value="">Nessuno</option>
-                      {vehicles.map(v => <option key={v.id} value={v.id}>{v.name} ({v.license_plate})</option>)}
-                    </select>
+                    <label className="block text-label-xs text-on-surface-variant mb-1">Veicoli Assegnati</label>
+                    <div className="flex flex-wrap gap-2">
+                      {vehicles.map(v => (
+                        <button key={v.id} type="button" onClick={() => toggleVehicle(v.id)}
+                          className={`px-3 py-2 rounded-lg text-label-xs font-medium border transition-all ${
+                            selectedVehicles.includes(v.id)
+                              ? 'bg-primary text-on-primary border-primary'
+                              : 'bg-white text-on-surface-variant border-outline-variant hover:border-primary'
+                          }`}>
+                          {v.name}
+                        </button>
+                      ))}
+                      {vehicles.length === 0 && <span className="text-label-xs text-on-surface-variant">Nessun veicolo disponibile</span>}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-label-xs text-on-surface-variant mb-1">Max Volontari</label>
@@ -383,7 +407,7 @@ export default function TurniPage() {
           <h2 className="text-display-lg text-display-lg text-on-surface">Turni</h2>
           <p className="text-body-md text-on-surface-variant">Gestione turni, mezzi e attrezzatura</p>
         </div>
-        <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '' }); setSelectedEquipment({}); setShowForm(true) }}
+        <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1 }); setSelectedVehicles([]); setSelectedEquipment({}); setShowForm(true) }}
           className="bg-primary text-on-primary py-3 px-6 rounded-xl text-title-sm flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg">
           <Icon name="add" /> Nuovo Turno
         </button>
@@ -449,9 +473,17 @@ export default function TurniPage() {
                       </div>
                     </td>
                     <td className="px-lg py-4">
-                      <div className="flex items-center gap-2">
-                        <Icon name="local_shipping" className="text-on-surface-variant" />
-                        <span className="text-body-sm font-medium">{s.vehicles?.name || 'Nessuno'}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {s.shift_vehicles && s.shift_vehicles.length > 0 ? (
+                          s.shift_vehicles.map(sv => (
+                            <span key={sv.id} className="inline-flex items-center gap-1 text-label-xs bg-surface-container-high px-2 py-0.5 rounded whitespace-nowrap">
+                              <Icon name="local_shipping" className="text-[14px]" />
+                              {sv.vehicles?.name || 'Veicolo'}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-label-xs text-on-surface-variant">Nessuno</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-lg py-4">
@@ -466,8 +498,8 @@ export default function TurniPage() {
                               title: s.title, description: s.description || '',
                               start_time: s.start_time.slice(0, 16), end_time: s.end_time.slice(0, 16),
                               type: s.type, max_volunteers: s.max_volunteers,
-                              vehicle_id: s.vehicle_id || '',
                             })
+                            setSelectedVehicles(s.shift_vehicles?.map(sv => sv.vehicle_id) || [])
                             const eqMap: Record<string, number> = {}
                             s.shift_equipment?.forEach(se => { eqMap[se.equipment_id] = se.quantity })
                             setSelectedEquipment(eqMap)

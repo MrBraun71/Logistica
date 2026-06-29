@@ -128,6 +128,14 @@ export interface Equipment {
   updated_at: string
 }
 
+export interface ShiftVehicle {
+  id: string
+  shift_id: string
+  vehicle_id: string
+  created_at: string
+  vehicles?: Vehicle
+}
+
 export interface ShiftEquipment {
   id: string
   shift_id: string

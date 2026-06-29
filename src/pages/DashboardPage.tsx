@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { Shift, Vehicle, Equipment, ShiftEquipment } from '../types/database'
+import type { Shift, Vehicle, Equipment, ShiftEquipment, ShiftVehicle } from '../types/database'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 interface ShiftWithVehicle extends Shift {
   vehicles?: Vehicle
+  shift_vehicles?: (ShiftVehicle & { vehicles?: Vehicle })[]
   shift_equipment?: (ShiftEquipment & { equipment?: Equipment })[]
 }
 
@@ -28,7 +29,7 @@ export default function DashboardPage() {
       const [sc, vc, sr] = await Promise.all([
         supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).gte('start_time', new Date().toISOString()),
         supabase.from('vehicles').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('is_active', true),
-        supabase.from('shifts').select('*, vehicles!vehicle_id(*), shift_equipment(*, equipment:equipment_id(*))').eq('organization_id', orgId).order('start_time', { ascending: false }).limit(20),
+        supabase.from('shifts').select('*, shift_vehicles(*, vehicles:vehicle_id(*)), shift_equipment(*, equipment:equipment_id(*))').eq('organization_id', orgId).order('start_time', { ascending: false }).limit(20),
       ])
 
       setShiftCount(sc.count ?? 0)
@@ -105,7 +106,17 @@ export default function DashboardPage() {
                       {format(parseISO(s.start_time), "HH:mm")} — {format(parseISO(s.end_time), "HH:mm")}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-[#6e6e73]">{s.vehicles?.name || '—'}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {s.shift_vehicles && s.shift_vehicles.length > 0 ? (
+                          s.shift_vehicles.map(sv => (
+                            <span key={sv.id} className="inline-flex items-center gap-1 text-[11px] font-medium bg-[#f5f5f7] text-[#1d1d1f] px-2 py-1 rounded-md">
+                              {sv.vehicles?.name || 'Veicolo'}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-[#6e6e73]">—</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1.5">
