@@ -8,14 +8,12 @@ function Icon({ name, className = '' }: { name: string; className?: string }) {
   return <span className={`material-symbols-outlined ${className}`}>{name}</span>
 }
 
-const categorie = ['DAE', 'Borsone', 'Gazebo', 'Computer', 'Rollup', 'Altro']
+const categorie = ['Sanitario', 'Logistica', 'Comunicazione', 'Altro']
 
 const categoriaIcone: Record<string, string> = {
-  DAE: 'monitor_heart',
-  Borsone: 'backpack',
-  Gazebo: 'tent',
-  Computer: 'computer',
-  Rollup: 'flag',
+  Sanitario: 'monitor_heart',
+  Logistica: 'inventory_2',
+  Comunicazione: 'cell_tower',
 }
 
 export default function InventarioPage() {
