@@ -287,18 +287,16 @@ export default function TurniPage() {
                     {equipFiltered.map(eq => {
                       const qty = selectedEquipment[eq.id] || 0
                       const iconName = categoriaIcone[eq.categoria] || 'inventory_2'
-                      const subtitle = eq.sede || eq.id_numero
                       return (
                         <div key={eq.id} className="flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-outline-variant hover:bg-surface-container transition-all group">
                           <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded flex items-center justify-center ${
-                              eq.categoria === 'DAE' ? 'bg-error-container/20 text-error' : 'bg-on-secondary-container/10 text-secondary'
-                            }`}>
+                            <div className="w-8 h-8 rounded flex items-center justify-center bg-on-secondary-container/10 text-secondary">
                               <Icon name={iconName} className="text-[20px]" />
                             </div>
                             <div>
                               <p className="text-body-sm font-medium">{eq.articolo}</p>
-                              <p className="text-label-xs text-on-surface-variant">{subtitle}</p>
+                              <p className="text-label-xs text-on-surface-variant">{eq.id_numero}</p>
+                              <p className="text-label-xs text-on-surface-variant">{eq.marca}{eq.modello ? ` / ${eq.modello}` : ''}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-1">
