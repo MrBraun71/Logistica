@@ -12,7 +12,10 @@ const typeIcone: Record<string, string> = {
   Ambulanza: 'local_hospital',
   Auto: 'directions_car',
   Furgone: 'local_shipping',
+  Moto: 'motorcycle',
 }
+
+const veicoliTipi = ['Ambulanza', 'Auto', 'Furgone', 'Moto']
 
 export default function VeicoliPage() {
   const { profile: currentUser } = useAuth()
@@ -108,7 +111,12 @@ export default function VeicoliPage() {
               </div>
               <div>
                 <label className="block text-label-caps text-on-surface-variant mb-1.5">Tipo</label>
-                <input type="text" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} placeholder="es. Ambulanza, Auto, Furgone" className="w-full h-11 px-4 bg-white border border-outline-variant rounded-xl text-body-md focus:ring-2 focus:ring-primary transition-all" />
+                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-xl text-body-md focus:ring-2 focus:ring-primary transition-all">
+                  <option value="">Seleziona tipo...</option>
+                  {veicoliTipi.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex gap-3 pt-1">
                 <button type="submit" className="flex-1 h-[52px] bg-primary text-on-primary text-body-md font-semibold rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-sm">{editing ? 'Salva' : 'Crea'}</button>
