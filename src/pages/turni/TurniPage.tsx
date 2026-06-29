@@ -72,7 +72,7 @@ export default function TurniPage() {
 
   async function loadVehicles() {
     if (!profile?.organization_id) return
-    const { data } = await supabase.from('vehicles').select('*').eq('organization_id', profile.organization_id).eq('is_active', true)
+    const { data } = await supabase.from('vehicles').select('*').eq('organization_id', profile.organization_id).order('name')
     if (data) setVehicles(data)
   }
 
