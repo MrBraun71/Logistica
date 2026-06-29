@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import type { Notification } from '../../types/database'
@@ -27,6 +27,7 @@ export function AppLayout() {
   const notifRef = useRef<HTMLDivElement>(null)
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const isAdmin = profile?.role === 'admin'
 
   useEffect(() => {
@@ -220,12 +221,18 @@ export function AppLayout() {
       </nav>
 
       {/* FAB for Mobile */}
-      <button
-        onClick={() => navigate('/turni?nuovo')}
-        className="fixed right-6 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center lg:hidden active:scale-90 transition-all"
-      >
-        <Icon name="add" className="text-3xl" />
-      </button>
+      {location.pathname !== '/dashboard' && (
+        <button
+          onClick={() => {
+            if (location.pathname === '/turni') navigate('/turni?nuovo')
+            else if (location.pathname === '/veicoli') navigate('/veicoli?nuovo')
+            else if (location.pathname === '/inventario') navigate('/inventario?nuovo')
+          }}
+          className="fixed right-6 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center lg:hidden active:scale-90 transition-all"
+        >
+          <Icon name="add" className="text-3xl" />
+        </button>
+      )}
     </div>
   )
 }

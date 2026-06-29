@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import type { Vehicle } from '../../types/database'
@@ -15,12 +16,21 @@ const typeIcone: Record<string, string> = {
 
 export default function VeicoliPage() {
   const { profile: currentUser } = useAuth()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Vehicle | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', license_plate: '', type: '' })
+
+  useEffect(() => {
+    if (searchParams.has('nuovo')) {
+      setEditing(null); setError(null); setForm({ name: '', license_plate: '', type: '' }); setShowForm(true)
+      navigate('/veicoli', { replace: true })
+    }
+  }, [])
 
   useEffect(() => { if (currentUser?.organization_id) loadVehicles() }, [currentUser?.organization_id])
 

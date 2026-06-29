@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams, useNavigate, Navigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import type { Equipment } from '../../types/database'
-import { Navigate } from 'react-router-dom'
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
   return <span className={`material-symbols-outlined ${className}`}>{name}</span>
@@ -20,6 +20,8 @@ const categoriaIcone: Record<string, string> = {
 
 export default function InventarioPage() {
   const { profile } = useAuth()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [items, setItems] = useState<Equipment[]>([])
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -29,6 +31,15 @@ export default function InventarioPage() {
     id_numero: '', articolo: '', marca: '', modello: '',
     categoria: '', inventario_interno: '', sede: '', note: '',
   })
+
+  useEffect(() => {
+    if (searchParams.has('nuovo')) {
+      setEditing(null); setError(null)
+      setForm({ id_numero: '', articolo: '', marca: '', modello: '', categoria: '', inventario_interno: '', sede: '', note: '' })
+      setShowForm(true)
+      navigate('/inventario', { replace: true })
+    }
+  }, [])
 
   useEffect(() => { if (profile?.organization_id) loadItems() }, [profile?.organization_id])
 
