@@ -17,6 +17,13 @@ function Icon({ name, className = '' }: { name: string; className?: string }) {
   return <span className={`material-symbols-outlined ${className}`}>{name}</span>
 }
 
+const typeIcone: Record<string, string> = {
+  Ambulanza: 'local_hospital',
+  Auto: 'directions_car',
+  Furgone: 'local_shipping',
+  Moto: 'motorcycle',
+}
+
 const categoriaIcone: Record<string, string> = {
   DAE: 'medical_services',
   Borsone: 'backpack',
@@ -487,7 +494,7 @@ export default function TurniPage() {
                         {s.shift_vehicles && s.shift_vehicles.length > 0 ? (
                           s.shift_vehicles.map(sv => (
                             <span key={sv.id} className="inline-flex items-center gap-1 text-label-xs bg-surface-container-high px-2 py-0.5 rounded whitespace-nowrap">
-                              <Icon name="local_shipping" className="text-[14px]" />
+                              <Icon name={typeIcone[sv.vehicles?.type || ''] || 'local_shipping'} className="text-[14px]" />
                               {sv.vehicles?.name || 'Veicolo'}
                             </span>
                           ))
