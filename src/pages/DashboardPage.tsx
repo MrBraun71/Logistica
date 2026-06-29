@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { CalendarDays, Car, Calendar } from 'lucide-react'
-import type { Shift } from '../types/database'
+import type { Shift, Vehicle } from '../types/database'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 
-const gradientCards = [
-  { label: 'Prossimi Turni', icon: CalendarDays, from: 'from-emerald-500', to: 'to-green-400' },
-  { label: 'Mezzi Attivi', icon: Car, from: 'from-rose-500', to: 'to-pink-400' },
-]
+interface ShiftWithVehicle extends Shift {
+  vehicles?: Vehicle
+}
+
+function Icon({ name, className = '' }: { name: string; className?: string }) {
+  return <span className={`material-symbols-outlined ${className}`}>{name}</span>
+}
 
 export default function DashboardPage() {
   const { profile } = useAuth()
-  const [stats, setStats] = useState({ shifts: 0, vehicles: 0 })
-  const [upcomingShifts, setUpcomingShifts] = useState<Shift[]>([])
+  const [shifts, setShifts] = useState<ShiftWithVehicle[]>([])
+  const [shiftCount, setShiftCount] = useState(0)
+  const [vehicleCount, setVehicleCount] = useState(0)
 
   useEffect(() => {
     if (!profile?.organization_id) return
@@ -24,77 +27,133 @@ export default function DashboardPage() {
       const [sc, vc, sr] = await Promise.all([
         supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).gte('start_time', new Date().toISOString()),
         supabase.from('vehicles').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('is_active', true),
-        supabase.from('shifts').select('*').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(5),
+        supabase.from('shifts').select('*, vehicles!vehicle_id(*)').eq('organization_id', orgId).gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(10),
       ])
 
-      setStats({
-        shifts: sc.count ?? 0,
-        vehicles: vc.count ?? 0,
-      })
-      setUpcomingShifts(sr.data ?? [])
+      setShiftCount(sc.count ?? 0)
+      setVehicleCount(vc.count ?? 0)
+      if (sr.data) setShifts(sr.data)
     }
     load()
   }, [profile?.organization_id])
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-container-max mx-auto space-y-xl">
+      {/* Welcome Header */}
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Benvenuto, {profile?.first_name}</p>
+          <h2 className="text-display-lg text-display-lg text-on-surface">Bentornato, {profile?.first_name}</h2>
+          <p className="text-body-md text-on-surface-variant">Ecco una panoramica della flotta e dei turni per oggi.</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl border border-gray-100 text-sm text-gray-500 shadow-sm">
-          <Calendar className="w-4 h-4" />
-          {format(new Date(), "d MMM yyyy", { locale: it })}
-        </div>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-2 gap-4">
-        {gradientCards.map((c, i) => (
-          <div key={c.label} className="group relative bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.from} ${c.to} flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300`}>
-              <c.icon className="w-5 h-5 text-white" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{Object.values(stats)[i]}</p>
-            <p className="text-sm text-gray-400 mt-0.5">{c.label}</p>
+      {/* Stats Cards */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl flex items-center gap-lg">
+          <div className="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+            <Icon name="calendar_month" className="text-3xl" />
           </div>
-        ))}
-      </div>
-
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900">Prossimi Turni</h2>
-          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">{upcomingShifts.length} in programma</span>
+          <div>
+            <p className="text-on-surface-variant text-label-xs uppercase tracking-wider">Turni Imminenti</p>
+            <h3 className="text-headline-md text-on-surface">{shiftCount} Prossimi Turni</h3>
+          </div>
         </div>
-        {upcomingShifts.length === 0 ? (
-          <div className="text-center py-8 text-gray-300">
-            <CalendarDays className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Nessun turno imminente</p>
+
+        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl flex items-center gap-lg">
+          <div className="w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
+            <Icon name="local_shipping" className="text-3xl" />
+          </div>
+          <div>
+            <p className="text-on-surface-variant text-label-xs uppercase tracking-wider">Operatività Mezzi</p>
+            <h3 className="text-headline-md text-on-surface">{vehicleCount} Mezzi Attivi</h3>
+          </div>
+        </div>
+
+        <div className="md:col-span-2 relative bg-primary overflow-hidden rounded-xl p-lg flex flex-col justify-between text-on-primary">
+          <div className="relative z-10">
+            <h3 className="text-headline-md mb-xs">Stato Logistica</h3>
+            <p className="text-on-primary/80 text-body-sm">Efficienza operativa al 94% questa settimana.</p>
+          </div>
+          <div className="relative z-10 mt-xl flex items-center gap-4">
+            <div className="flex -space-x-2">
+              {['a', 'b', 'c'].map((_, i) => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-primary bg-on-primary/20 flex items-center justify-center text-xs">
+                  {profile?.first_name?.[i] || '?'}
+                </div>
+              ))}
+            </div>
+            <span className="text-label-xs">+12 operatori in linea</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Shifts Table */}
+      <section className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+        <div className="p-lg border-b border-outline-variant flex justify-between items-center">
+          <div className="flex items-center gap-sm">
+            <Icon name="list_alt" className="text-primary" />
+            <h3 className="text-title-sm text-on-surface">Prossimi Turni</h3>
+          </div>
+          <span className="text-label-xs text-on-surface-variant">{shifts.length} in programma</span>
+        </div>
+
+        {shifts.length === 0 ? (
+          <div className="text-center py-16 text-on-surface-variant">
+            <Icon name="calendar_month" className="text-4xl opacity-50 mb-2" />
+            <p className="text-body-sm">Nessun turno imminente</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {upcomingShifts.map((s) => (
-              <div key={s.id} className="group flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center flex-shrink-0 border border-gray-50">
-                  <span className="text-lg font-bold text-gray-700 leading-none">{format(parseISO(s.start_time), "d")}</span>
-                  <span className="text-[10px] text-gray-400 uppercase">{format(parseISO(s.start_time), "MMM", { locale: it })}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 text-sm truncate">{s.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {format(parseISO(s.start_time), "HH:mm")} — {format(parseISO(s.end_time), "HH:mm")}
-                  </p>
-                </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                  s.status === 'aperto' ? 'bg-emerald-50 text-emerald-600' :
-                  s.status === 'chiuso' ? 'bg-amber-50 text-amber-600' :
-                  'bg-gray-50 text-gray-500'
-                }`}>{s.status}</span>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-surface-container-low">
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Data</th>
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Nome Turno</th>
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Orario</th>
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Mezzo</th>
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Stato</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant">
+                {shifts.map((s) => (
+                  <tr key={s.id} className="hover:bg-surface-container-low transition-colors group">
+                    <td className="px-lg py-4">
+                      <div className="flex flex-col items-center justify-center w-14 h-14 bg-primary-container/10 rounded-lg border border-primary-container/20">
+                        <span className="text-primary font-bold text-lg leading-none">{format(parseISO(s.start_time), "d")}</span>
+                        <span className="text-primary text-label-xs text-[10px] uppercase">{format(parseISO(s.start_time), "MMM", { locale: it })}</span>
+                      </div>
+                    </td>
+                    <td className="px-lg py-4">
+                      <p className="text-body-md text-on-surface font-medium">{s.title}</p>
+                      <p className="text-label-xs text-on-surface-variant">{s.type}</p>
+                    </td>
+                    <td className="px-lg py-4">
+                      <div className="flex items-center gap-1 text-on-surface-variant text-body-sm">
+                        <Icon name="schedule" className="text-sm" />
+                        {format(parseISO(s.start_time), "HH:mm")} — {format(parseISO(s.end_time), "HH:mm")}
+                      </div>
+                    </td>
+                    <td className="px-lg py-4">
+                      <div className="flex items-center gap-2">
+                        <Icon name="local_shipping" className="text-on-surface-variant" />
+                        <span className="text-body-sm font-medium">{s.vehicles?.name || 'Nessuno'}</span>
+                      </div>
+                    </td>
+                    <td className="px-lg py-4">
+                      <span className={`px-3 py-1 rounded-full text-label-xs font-semibold uppercase tracking-wide ${
+                        s.status === 'aperto' ? 'bg-emerald-50 text-emerald-700' :
+                        s.status === 'chiuso' ? 'bg-amber-50 text-amber-700' :
+                        s.status === 'completato' ? 'bg-gray-50 text-gray-500' :
+                        'bg-red-50 text-red-600'
+                      }`}>{s.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   )
 }
