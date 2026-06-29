@@ -32,7 +32,6 @@ export default function TurniPage() {
   const isAdmin = profile?.role === 'admin'
   const [shifts, setShifts] = useState<ShiftFull[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [volunteers, setVolunteers] = useState<Profile[]>([])
   const [equipmentItems, setEquipmentItems] = useState<Equipment[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<ShiftFull | null>(null)
@@ -43,13 +42,12 @@ export default function TurniPage() {
   const [form, setForm] = useState({
     title: '', description: '', start_time: '', end_time: '',
     type: 'ordinario' as Shift['type'], max_volunteers: 1,
-    vehicle_id: '', equipment_notes: '',
+    vehicle_id: '',
   })
   const [selectedEquipment, setSelectedEquipment] = useState<Record<string, number>>({})
-  const [selectedVolunteers, setSelectedVolunteers] = useState<string[]>([])
 
   useEffect(() => {
-    if (profile?.organization_id) { loadShifts(); loadVehicles(); loadVolunteers(); loadEquipment() }
+    if (profile?.organization_id) { loadShifts(); loadVehicles(); loadEquipment() }
   }, [profile?.organization_id])
 
   async function loadShifts() {
@@ -66,12 +64,6 @@ export default function TurniPage() {
     if (!profile?.organization_id) return
     const { data } = await supabase.from('vehicles').select('*').eq('organization_id', profile.organization_id).eq('is_active', true)
     if (data) setVehicles(data)
-  }
-
-  async function loadVolunteers() {
-    if (!profile?.organization_id) return
-    const { data } = await supabase.from('profiles').select('*').eq('organization_id', profile.organization_id).eq('is_active', true)
-    if (data) setVolunteers(data)
   }
 
   async function loadEquipment() {
@@ -106,7 +98,6 @@ export default function TurniPage() {
         title: form.title, description: form.description,
         start_time: form.start_time, end_time: form.end_time, type: form.type,
         max_volunteers: form.max_volunteers, vehicle_id: form.vehicle_id || null,
-        equipment_notes: form.equipment_notes || null,
       }
 
       if (editing) {
@@ -138,13 +129,6 @@ export default function TurniPage() {
             if (seErr) throw seErr
           }
 
-          if (selectedVolunteers.length > 0) {
-            const { error: aErr } = await supabase.from('shift_assignments').insert(
-              selectedVolunteers.map(vId => ({ shift_id: shiftId, profile_id: vId, status: 'assegnato' as const }))
-            )
-            if (aErr) throw aErr
-          }
-
           if (!isAdmin) {
             await supabase.from('notifications').insert({
               organization_id: profile.organization_id,
@@ -158,9 +142,8 @@ export default function TurniPage() {
       }
 
       setShowForm(false); setEditing(null)
-      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', equipment_notes: '' })
+      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '' })
       setSelectedEquipment({})
-      setSelectedVolunteers([])
       loadShifts()
     } catch (err: any) { setError(err.message || 'Errore durante il salvataggio del turno') }
   }
@@ -168,10 +151,6 @@ export default function TurniPage() {
   async function handleStatusChange(id: string, status: Shift['status']) {
     await supabase.from('shifts').update({ status }).eq('id', id)
     loadShifts()
-  }
-
-  function toggleVolunteer(id: string) {
-    setSelectedVolunteers(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id])
   }
 
   function toggleEquipment(id: string) {
@@ -194,9 +173,7 @@ export default function TurniPage() {
       start_time: shift.start_time.slice(0, 16), end_time: shift.end_time.slice(0, 16),
       type: shift.type, max_volunteers: shift.max_volunteers,
       vehicle_id: shift.vehicle_id || '',
-      equipment_notes: shift.equipment_notes || '',
     })
-    setSelectedVolunteers(shift.shift_assignments?.map(a => a.profile_id) || [])
 
     const eqMap: Record<string, number> = {}
     shift.shift_equipment?.forEach(se => {
@@ -221,7 +198,7 @@ export default function TurniPage() {
           <p className="text-gray-400 text-sm mt-0.5">Gestione turni, mezzi e attrezzatura</p>
         </div>
         {(!isAdmin || isAdmin) && (
-          <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', equipment_notes: '' }); setSelectedEquipment({}); setSelectedVolunteers([]); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
+          <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '' }); setSelectedEquipment({}); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
             <Plus className="w-4 h-4" /> Nuovo Turno
           </button>
         )}
@@ -351,32 +328,9 @@ export default function TurniPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1.5">Max Volontari</label>
-                  <input type="number" value={form.max_volunteers} onChange={e => setForm({ ...form, max_volunteers: parseInt(e.target.value) || 1 })} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all" min={1} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1.5">Note attrezzatura</label>
-                  <input type="text" value={form.equipment_notes} onChange={e => setForm({ ...form, equipment_notes: e.target.value })} placeholder="es. DAE training..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all" />
-                </div>
-              </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Assegna Volontari</label>
-                <div className="flex flex-wrap gap-1.5 border border-gray-100 rounded-xl p-3 max-h-32 overflow-y-auto bg-gray-50/50">
-                  {volunteers.map(v => (
-                    <button key={v.id} type="button" onClick={() => toggleVolunteer(v.id)}
-                      className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
-                        selectedVolunteers.includes(v.id)
-                          ? 'bg-blue-500 border-blue-500 text-white shadow-sm'
-                          : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}>
-                      {v.first_name} {v.last_name}
-                    </button>
-                  ))}
-                  {volunteers.length === 0 && <p className="text-xs text-gray-400 p-1">Nessun volontario disponibile</p>}
-                </div>
-                {selectedVolunteers.length > 0 && <p className="text-xs text-gray-400 mt-1">{selectedVolunteers.length} selezionati</p>}
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Max Volontari</label>
+                <input type="number" value={form.max_volunteers} onChange={e => setForm({ ...form, max_volunteers: parseInt(e.target.value) || 1 })} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all" min={1} />
               </div>
               <div className="flex gap-3 pt-1">
                 <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">{editing ? 'Salva' : 'Crea Turno'}</button>
@@ -448,7 +402,6 @@ export default function TurniPage() {
                       })}
                     </>
                   )}
-                  {shift.equipment_notes && <span className="text-xs text-gray-400 italic px-1 py-1">Note: {shift.equipment_notes}</span>}
                 </div>
 
                 {shift.shift_assignments && shift.shift_assignments.length > 0 && (
