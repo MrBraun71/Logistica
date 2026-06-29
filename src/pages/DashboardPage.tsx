@@ -44,12 +44,7 @@ export default function DashboardPage() {
       <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
         <div>
           <h2 className="text-display-lg text-display-lg text-on-surface">Bentornato, {profile?.first_name}</h2>
-          <p className="text-body-md text-on-surface-variant">Ecco una panoramica della flotta e dei turni per oggi.</p>
-        </div>
-        <div className="flex gap-sm">
-          <button className="px-md py-2 border border-outline-variant rounded-lg text-body-sm flex items-center gap-2 hover:bg-surface-container-high transition-colors">
-            <Icon name="download" /> Report PDF
-          </button>
+          <p className="text-body-md text-on-surface-variant">Panoramica dei turni, delle attrezzature e dei volontari.</p>
         </div>
       </section>
 
@@ -163,60 +158,6 @@ export default function DashboardPage() {
             </table>
           </div>
         )}
-      </section>
-
-      {/* Mappa Operativa Real-Time e Promemoria Flotta */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-        <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant p-lg rounded-lg">
-          <h3 className="text-title-sm text-on-surface mb-md">Mappa Operativa Real-Time</h3>
-          <div className="relative h-[300px] w-full rounded bg-surface-container-high overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-primary-container/20 to-surface-container-high flex items-center justify-center">
-              <div className="text-center text-on-surface-variant">
-                <Icon name="map" className="text-5xl mb-2 opacity-40" />
-                <p className="text-body-sm opacity-60">Mappa Hub Principale — Milano Nord</p>
-              </div>
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-              <div className="bg-white/90 backdrop-blur-md p-3 rounded shadow-lg text-on-surface">
-                <p className="text-label-xs font-bold uppercase mb-1">Hub Principale</p>
-                <p className="text-body-sm">Milano Nord - Terminal A</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <button className="w-10 h-10 rounded bg-white shadow-md flex items-center justify-center text-primary"><Icon name="add" /></button>
-                <button className="w-10 h-10 rounded bg-white shadow-md flex items-center justify-center text-primary"><Icon name="remove" /></button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-lg">
-          <h3 className="text-title-sm text-on-surface mb-md">Promemoria Flotta</h3>
-          <div className="space-y-4">
-            <div className="flex items-start gap-md p-3 rounded hover:bg-surface-container-high transition-colors">
-              <div className="mt-1 w-2 h-2 rounded-full bg-error"></div>
-              <div>
-                <p className="text-body-sm font-medium text-on-surface">Scadenza Assicurazione</p>
-                <p className="text-label-xs text-on-surface-variant">Veicolo in scadenza tra 2 giorni.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-md p-3 rounded hover:bg-surface-container-high transition-colors">
-              <div className="mt-1 w-2 h-2 rounded-full bg-primary"></div>
-              <div>
-                <p className="text-body-sm font-medium text-on-surface">Revisione Veicoli</p>
-                <p className="text-label-xs text-on-surface-variant">Pianificare revisione entro venerdì.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-md p-3 rounded hover:bg-surface-container-high transition-colors">
-              <div className="mt-1 w-2 h-2 rounded-full bg-tertiary"></div>
-              <div>
-                <p className="text-body-sm font-medium text-on-surface">Aggiornamento Documenti</p>
-                <p className="text-label-xs text-on-surface-variant">Caricare documenti nuovi assunti.</p>
-              </div>
-            </div>
-          </div>
-          <button className="w-full mt-lg py-2 text-primary text-title-sm border border-primary/20 rounded hover:bg-primary/5 transition-colors">
-            Gestisci Promemoria
-          </button>
-        </div>
       </section>
     </div>
   )

@@ -78,12 +78,12 @@ export function AppLayout() {
       <aside className="w-[260px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant hidden lg:flex flex-col py-lg px-md z-50">
         <div className="mb-xl px-2">
           <div className="flex items-center gap-sm mb-base">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
-              <Icon name="local_shipping" />
+              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+              <Icon name="volunteer_activism" />
             </div>
             <div>
               <h1 className="text-headline-md text-headline-md font-bold text-primary leading-tight">Logistica</h1>
-              <p className="text-on-surface-variant text-label-xs">Enterprise Fleet</p>
+              <p className="text-on-surface-variant text-label-xs">Comitato di Molfetta</p>
             </div>
           </div>
         </div>
@@ -135,7 +135,7 @@ export function AppLayout() {
               <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" />
               <input
                 className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-primary text-body-sm placeholder:text-outline"
-                placeholder="Cerca veicoli, turni o personale..."
+                placeholder="Cerca turni, attrezzatura o personale..."
                 type="text"
               />
             </div>
@@ -182,7 +182,7 @@ export function AppLayout() {
             <div className="flex items-center gap-sm cursor-pointer hover:opacity-80 transition-opacity" onClick={handleSignOut}>
               <div className="text-right hidden sm:block">
                 <p className="text-title-sm text-title-sm text-on-surface">{profile?.first_name}</p>
-                <p className="text-label-xs text-on-surface-variant">{isAdmin ? 'Admin Dashboard' : 'Utente'}</p>
+                <p className="text-label-xs text-on-surface-variant">{isAdmin ? 'Amministratore' : 'Utente'}</p>
               </div>
               <div className="w-10 h-10 rounded-full border-2 border-primary-container bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm">
                 {profile?.first_name?.[0]}{profile?.last_name?.[0]}
