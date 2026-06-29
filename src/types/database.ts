@@ -111,3 +111,37 @@ export interface News {
   published_at: string
   created_by: string
 }
+
+export interface Equipment {
+  id: string
+  organization_id: string
+  id_numero: string
+  articolo: string
+  marca: string
+  modello: string
+  categoria: string
+  inventario_interno: string
+  sede: string
+  note: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ShiftEquipment {
+  id: string
+  shift_id: string
+  equipment_id: string
+  quantity: number
+}
+
+export interface Notification {
+  id: string
+  organization_id: string
+  type: string
+  title: string
+  message: string
+  created_by: string | null
+  is_read: boolean
+  created_at: string
+}

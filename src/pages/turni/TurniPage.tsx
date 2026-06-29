@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import type { Shift, ShiftAssignment, Vehicle, Profile } from '../../types/database'
-import { Plus, Calendar, Clock, Users, Car, Briefcase, Heart, Monitor, Table2, Tent, X, ArrowRight, Pencil } from 'lucide-react'
+import type { Shift, ShiftAssignment, Vehicle, Profile, Equipment, ShiftEquipment } from '../../types/database'
+import { Plus, Calendar, Clock, Users, Car, Briefcase, Heart, Monitor, Table2, Tent, X, ArrowRight, Pencil, Package, Minus, Search, ShieldBan } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 interface ShiftFull extends Shift {
   vehicles?: Vehicle
   shift_assignments?: (ShiftAssignment & { profiles?: Profile })[]
+  shift_equipment?: (ShiftEquipment & { equipment?: Equipment })[]
 }
 
 const typeMeta: Record<string, { label: string; from: string; to: string }> = {
@@ -18,39 +19,43 @@ const typeMeta: Record<string, { label: string; from: string; to: string }> = {
   evento: { label: 'Evento', from: 'from-emerald-500', to: 'to-green-400' },
 }
 
-const equipMeta = [
-  { key: 'borsoni', label: 'Borsoni', icon: Briefcase },
-  { key: 'dae', label: 'DAE', icon: Heart },
-  { key: 'rollup', label: 'Rollup', icon: Monitor },
-  { key: 'desk', label: 'Desk', icon: Table2 },
-  { key: 'gazebo', label: 'Gazebo', icon: Tent },
-]
+const categoriaIcone: Record<string, any> = {
+  DAE: Heart,
+  Borsone: Briefcase,
+  Gazebo: Tent,
+  Computer: Monitor,
+  Rollup: Table2,
+}
 
 export default function TurniPage() {
   const { profile } = useAuth()
+  const isAdmin = profile?.role === 'admin'
   const [shifts, setShifts] = useState<ShiftFull[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [volunteers, setVolunteers] = useState<Profile[]>([])
+  const [equipmentItems, setEquipmentItems] = useState<Equipment[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<ShiftFull | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState('tutti')
+  const [equipSearch, setEquipSearch] = useState('')
   const [form, setForm] = useState({
     title: '', description: '', start_time: '', end_time: '',
     type: 'ordinario' as Shift['type'], max_volunteers: 1,
-    vehicle_id: '', borsoni: 0, dae: 0, rollup: 0, desk: 0, gazebo: 0, equipment_notes: '',
+    vehicle_id: '', equipment_notes: '',
   })
+  const [selectedEquipment, setSelectedEquipment] = useState<Record<string, number>>({})
   const [selectedVolunteers, setSelectedVolunteers] = useState<string[]>([])
 
   useEffect(() => {
-    if (profile?.organization_id) { loadShifts(); loadVehicles(); loadVolunteers() }
+    if (profile?.organization_id) { loadShifts(); loadVehicles(); loadVolunteers(); loadEquipment() }
   }, [profile?.organization_id])
 
   async function loadShifts() {
     if (!profile?.organization_id) return
     const { data } = await supabase
       .from('shifts')
-      .select('*, vehicles!vehicle_id(*), shift_assignments(*, profiles:profile_id(*))')
+      .select('*, vehicles!vehicle_id(*), shift_assignments(*, profiles:profile_id(*)), shift_equipment(*, equipment:equipment_id(*))')
       .eq('organization_id', profile.organization_id)
       .order('start_time', { ascending: false })
     if (data) setShifts(data)
@@ -68,40 +73,88 @@ export default function TurniPage() {
     if (data) setVolunteers(data)
   }
 
+  async function loadEquipment() {
+    if (!profile?.organization_id) return
+    const { data } = await supabase.from('equipment').select('*').eq('organization_id', profile.organization_id).eq('is_active', true).order('articolo')
+    if (data) setEquipmentItems(data)
+  }
+
   const filtered = filter === 'tutti' ? shifts : shifts.filter(s => s.status === filter)
+
+  const equipFiltered = equipmentItems.filter(e =>
+    !equipSearch || `${e.articolo} ${e.id_numero} ${e.marca} ${e.modello} ${e.categoria} ${e.sede}`.toLowerCase().includes(equipSearch.toLowerCase())
+  )
+
+  const equipGrouped = equipFiltered.reduce<Record<string, Equipment[]>>((acc, e) => {
+    const cat = e.categoria || 'Altro'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(e)
+    return acc
+  }, {})
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     if (!profile?.id || !profile?.organization_id) { setError('Profilo non trovato'); return }
     try {
-      const data = {
+      const shiftData = {
         title: form.title, description: form.description,
         start_time: form.start_time, end_time: form.end_time, type: form.type,
         max_volunteers: form.max_volunteers, vehicle_id: form.vehicle_id || null,
-        borsoni: form.borsoni, dae: form.dae, rollup: form.rollup, desk: form.desk, gazebo: form.gazebo,
         equipment_notes: form.equipment_notes || null,
       }
 
       if (editing) {
-        const { error: err } = await supabase.from('shifts').update(data).eq('id', editing.id)
+        const { error: err } = await supabase.from('shifts').update(shiftData).eq('id', editing.id)
         if (err) throw err
+
+        await supabase.from('shift_equipment').delete().eq('shift_id', editing.id)
+        const seEntries = Object.entries(selectedEquipment).filter(([, qty]) => qty > 0)
+        if (seEntries.length > 0) {
+          const { error: seErr } = await supabase.from('shift_equipment').insert(
+            seEntries.map(([eqId, qty]) => ({ shift_id: editing.id, equipment_id: eqId, quantity: qty }))
+          )
+          if (seErr) throw seErr
+        }
       } else {
         const { data: newShift, error: err } = await supabase.from('shifts').insert({
-          ...data, organization_id: profile.organization_id, status: 'aperto', created_by: profile.id,
+          ...shiftData, organization_id: profile.organization_id, status: 'aperto', created_by: profile.id,
         }).select()
         if (err) throw err
 
-        if (selectedVolunteers.length > 0 && newShift?.[0]?.id) {
-          const { error: aErr } = await supabase.from('shift_assignments').insert(
-            selectedVolunteers.map(vId => ({ shift_id: newShift[0].id, profile_id: vId, status: 'assegnato' as const }))
-          )
-          if (aErr) throw aErr
+        if (newShift?.[0]?.id) {
+          const shiftId = newShift[0].id
+
+          const seEntries = Object.entries(selectedEquipment).filter(([, qty]) => qty > 0)
+          if (seEntries.length > 0) {
+            const { error: seErr } = await supabase.from('shift_equipment').insert(
+              seEntries.map(([eqId, qty]) => ({ shift_id: shiftId, equipment_id: eqId, quantity: qty }))
+            )
+            if (seErr) throw seErr
+          }
+
+          if (selectedVolunteers.length > 0) {
+            const { error: aErr } = await supabase.from('shift_assignments').insert(
+              selectedVolunteers.map(vId => ({ shift_id: shiftId, profile_id: vId, status: 'assegnato' as const }))
+            )
+            if (aErr) throw aErr
+          }
+
+          if (!isAdmin) {
+            await supabase.from('notifications').insert({
+              organization_id: profile.organization_id,
+              type: 'new_shift',
+              title: `Nuovo turno da ${profile.first_name} ${profile.last_name}`,
+              message: `${form.title} — ${form.start_time.slice(0, 10)}`,
+              created_by: profile.id,
+            })
+          }
         }
       }
 
       setShowForm(false); setEditing(null)
-      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', borsoni: 0, dae: 0, rollup: 0, desk: 0, gazebo: 0, equipment_notes: '' })
+      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', equipment_notes: '' })
+      setSelectedEquipment({})
       setSelectedVolunteers([])
       loadShifts()
     } catch (err: any) { setError(err.message || 'Errore durante il salvataggio del turno') }
@@ -116,6 +169,19 @@ export default function TurniPage() {
     setSelectedVolunteers(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id])
   }
 
+  function toggleEquipment(id: string) {
+    setSelectedEquipment(prev => prev[id] ? { ...prev, [id]: prev[id] + 1 } : { ...prev, [id]: 1 })
+  }
+
+  function removeEquipment(id: string) {
+    setSelectedEquipment(prev => {
+      const next = { ...prev }
+      if (next[id] <= 1) delete next[id]
+      else next[id]--
+      return next
+    })
+  }
+
   function handleEdit(shift: ShiftFull) {
     setEditing(shift)
     setForm({
@@ -123,10 +189,15 @@ export default function TurniPage() {
       start_time: shift.start_time.slice(0, 16), end_time: shift.end_time.slice(0, 16),
       type: shift.type, max_volunteers: shift.max_volunteers,
       vehicle_id: shift.vehicle_id || '',
-      borsoni: shift.borsoni, dae: shift.dae, rollup: shift.rollup, desk: shift.desk, gazebo: shift.gazebo,
       equipment_notes: shift.equipment_notes || '',
     })
     setSelectedVolunteers(shift.shift_assignments?.map(a => a.profile_id) || [])
+
+    const eqMap: Record<string, number> = {}
+    shift.shift_equipment?.forEach(se => {
+      eqMap[se.equipment_id] = se.quantity
+    })
+    setSelectedEquipment(eqMap)
     setShowForm(true)
   }
 
@@ -137,12 +208,6 @@ export default function TurniPage() {
     cancellato: 'bg-red-50 text-red-600 border-red-200',
   }
 
-  const getEquipCount = (s: ShiftFull, key: string) => {
-    if (key === 'borsoni') return s.borsoni; if (key === 'dae') return s.dae
-    if (key === 'rollup') return s.rollup; if (key === 'desk') return s.desk; if (key === 'gazebo') return s.gazebo
-    return 0
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -150,14 +215,22 @@ export default function TurniPage() {
           <h1 className="text-2xl font-bold text-gray-900">Turni</h1>
           <p className="text-gray-400 text-sm mt-0.5">Gestione turni, mezzi e attrezzatura</p>
         </div>
-        <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', borsoni: 0, dae: 0, rollup: 0, desk: 0, gazebo: 0, equipment_notes: '' }); setSelectedVolunteers([]); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
-          <Plus className="w-4 h-4" /> Nuovo Turno
-        </button>
+        {(!isAdmin || isAdmin) && (
+          <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1, vehicle_id: '', equipment_notes: '' }); setSelectedEquipment({}); setSelectedVolunteers([]); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
+            <Plus className="w-4 h-4" /> Nuovo Turno
+          </button>
+        )}
       </div>
 
       {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl border border-red-100">{error}</div>}
 
-      {/* Filter pills */}
+      {!isAdmin && (
+        <div className="bg-amber-50 text-amber-700 text-xs p-3 rounded-xl border border-amber-100 flex items-center gap-2">
+          <ShieldBan className="w-4 h-4 flex-shrink-0" />
+          Stai creando un turno come utente — l'amministratore riceverà una notifica.
+        </div>
+      )}
+
       <div className="flex gap-2 overflow-x-auto pb-1">
         {['tutti', 'aperto', 'chiuso', 'completato', 'cancellato'].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
@@ -169,7 +242,6 @@ export default function TurniPage() {
         ))}
       </div>
 
-      {/* Form modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -208,18 +280,60 @@ export default function TurniPage() {
                   </select>
                 </div>
               </div>
+
+              {/* Equipment from inventory */}
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Attrezzatura</label>
-                <div className="grid grid-cols-5 gap-2">
-                  {equipMeta.map(eq => (
-                    <label key={eq.key} className="flex flex-col items-center gap-1.5 p-3 border border-gray-100 rounded-xl cursor-pointer hover:border-gray-200 hover:bg-gray-50/50 transition-all">
-                      <eq.icon className="w-5 h-5 text-gray-500" />
-                      <span className="text-[10px] text-gray-400 font-medium">{eq.label}</span>
-                      <input type="number" min={0} value={(form as any)[eq.key]} onChange={e => setForm({ ...form, [eq.key]: parseInt(e.target.value) || 0 })} className="w-full text-center text-sm border-0 bg-gray-50 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
-                    </label>
-                  ))}
+                <label className="block text-xs font-medium text-gray-500 mb-2">Attrezzatura da Inventario</label>
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
+                  <input type="text" placeholder="Cerca attrezzatura..." value={equipSearch} onChange={e => setEquipSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" />
                 </div>
+                <div className="border border-gray-100 rounded-xl p-3 max-h-48 overflow-y-auto bg-gray-50/50 space-y-2">
+                  {Object.entries(equipGrouped).map(([cat, items]) => (
+                    <div key={cat}>
+                      <p className="text-[10px] font-semibold text-gray-400 uppercase mb-1">{cat}</p>
+                      <div className="space-y-1">
+                        {items.map(eq => {
+                          const qty = selectedEquipment[eq.id] || 0
+                          const Icon = categoriaIcone[cat] || Package
+                          return (
+                            <div key={eq.id} className="flex items-center justify-between bg-white rounded-lg px-2.5 py-1.5 border border-gray-100">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Icon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                <span className="text-xs text-gray-700 truncate">{eq.articolo}</span>
+                                <span className="text-[10px] text-gray-400">{eq.id_numero}</span>
+                              </div>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                {qty > 0 && (
+                                  <>
+                                    <button type="button" onClick={() => removeEquipment(eq.id)}
+                                      className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-colors">
+                                      <Minus className="w-3 h-3" />
+                                    </button>
+                                    <span className="text-xs font-medium text-gray-700 w-4 text-center">{qty}</span>
+                                  </>
+                                )}
+                                <button type="button" onClick={() => toggleEquipment(eq.id)}
+                                  className="w-5 h-5 rounded bg-blue-50 flex items-center justify-center text-blue-500 hover:bg-blue-100 transition-colors">
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  {equipmentItems.length === 0 && (
+                    <p className="text-xs text-gray-400 text-center py-4">Nessuna attrezzatura in inventario. Aggiungila dalla sezione Inventario.</p>
+                  )}
+                </div>
+                {Object.keys(selectedEquipment).length > 0 && (
+                  <p className="text-xs text-gray-400 mt-1">{Object.values(selectedEquipment).reduce((a, b) => a + b, 0)} pezzi selezionati</p>
+                )}
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">Max Volontari</label>
@@ -256,13 +370,11 @@ export default function TurniPage() {
         </div>
       )}
 
-      {/* Shift cards */}
       <div className="space-y-3">
         {filtered.map((shift) => (
           <div key={shift.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-3 flex-1 min-w-0">
-                {/* Header with type + status */}
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold text-gray-900">{shift.title}</h3>
                   <span className={`text-[11px] px-2.5 py-1 rounded-full font-medium text-white bg-gradient-to-r ${typeMeta[shift.type].from} ${typeMeta[shift.type].to} shadow-sm`}>
@@ -275,14 +387,12 @@ export default function TurniPage() {
 
                 {shift.description && <p className="text-sm text-gray-400">{shift.description}</p>}
 
-                {/* Date/Time */}
                 <div className="flex flex-wrap gap-3 text-sm text-gray-400">
                   <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-gray-300" />{format(parseISO(shift.start_time), "d MMM yyyy", { locale: it })}</span>
                   <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-gray-300" />{format(parseISO(shift.start_time), "HH:mm")} — {format(parseISO(shift.end_time), "HH:mm")}</span>
                   <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-gray-300" />Max {shift.max_volunteers}</span>
                 </div>
 
-                {/* Vehicle */}
                 {shift.vehicles && (
                   <div className="flex items-center gap-2 text-sm text-gray-500 bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl px-3 py-1.5 w-fit border border-rose-100/50">
                     <Car className="w-4 h-4 text-rose-400" />
@@ -290,22 +400,40 @@ export default function TurniPage() {
                   </div>
                 )}
 
-                {/* Equipment */}
                 <div className="flex flex-wrap gap-1.5">
-                  {equipMeta.map(eq => {
-                    const count = getEquipCount(shift, eq.key)
-                    if (count === 0) return null
-                    return (
-                      <span key={eq.key} className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 rounded-lg px-2.5 py-1 border border-gray-100">
-                        <eq.icon className="w-3.5 h-3.5 text-gray-400" />
-                        {count}x
-                      </span>
-                    )
-                  })}
+                  {shift.shift_equipment?.map(se => se.equipment ? (
+                    <span key={se.id} className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 rounded-lg px-2.5 py-1 border border-gray-100">
+                      <Package className="w-3.5 h-3.5 text-gray-400" />
+                      {se.equipment.articolo}{se.quantity > 1 ? ` x${se.quantity}` : ''}
+                    </span>
+                  ) : null)}
+                  {(!shift.shift_equipment || shift.shift_equipment.length === 0) && (
+                    <>
+                      {['borsoni', 'dae', 'rollup', 'desk', 'gazebo'].map(key => {
+                        const count = (shift as any)[key]
+                        if (!count || count === 0) return null
+                        const eqMeta: Record<string, { label: string; icon: any }> = {
+                          borsoni: { label: 'Borsoni', icon: Briefcase },
+                          dae: { label: 'DAE', icon: Heart },
+                          rollup: { label: 'Rollup', icon: Monitor },
+                          desk: { label: 'Desk', icon: Table2 },
+                          gazebo: { label: 'Gazebo', icon: Tent },
+                        }
+                        const meta = eqMeta[key]
+                        if (!meta) return null
+                        const Icon = meta.icon
+                        return (
+                          <span key={key} className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 rounded-lg px-2.5 py-1 border border-gray-100">
+                            <Icon className="w-3.5 h-3.5 text-gray-400" />
+                            {count}x
+                          </span>
+                        )
+                      })}
+                    </>
+                  )}
                   {shift.equipment_notes && <span className="text-xs text-gray-400 italic px-1 py-1">Note: {shift.equipment_notes}</span>}
                 </div>
 
-                {/* Volunteers */}
                 {shift.shift_assignments && shift.shift_assignments.length > 0 && (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400">{shift.shift_assignments.length} volontari</span>
@@ -328,15 +456,14 @@ export default function TurniPage() {
                 )}
               </div>
 
-              {/* Actions */}
               <div className="flex gap-1.5 flex-shrink-0">
-                <button onClick={() => handleEdit(shift)} className="p-1.5 text-gray-300 hover:text-blue-500 transition-colors"><Pencil className="w-4 h-4" /></button>
+                {isAdmin && <button onClick={() => handleEdit(shift)} className="p-1.5 text-gray-300 hover:text-blue-500 transition-colors"><Pencil className="w-4 h-4" /></button>}
                 {shift.status === 'aperto' && (
                   <button onClick={() => handleStatusChange(shift.id, 'chiuso')} className="flex items-center gap-1 text-xs px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 border border-amber-200 transition-colors">
                     Chiudi <ArrowRight className="w-3 h-3" />
                   </button>
                 )}
-                {shift.status === 'chiuso' && (
+                {shift.status === 'chiuso' && isAdmin && (
                   <button onClick={() => handleStatusChange(shift.id, 'completato')} className="flex items-center gap-1 text-xs px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 border border-emerald-200 transition-colors">
                     Completa <ArrowRight className="w-3 h-3" />
                   </button>

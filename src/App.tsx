@@ -9,6 +9,7 @@ import AnagrafichePage from './pages/anagrafiche/AnagrafichePage'
 import TurniPage from './pages/turni/TurniPage'
 import PresenzePage from './pages/presenze/PresenzePage'
 import VeicoliPage from './pages/veicoli/VeicoliPage'
+import InventarioPage from './pages/inventario/InventarioPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/turni" element={<TurniPage />} />
             <Route path="/presenze" element={<PresenzePage />} />
             <Route path="/veicoli" element={<VeicoliPage />} />
+            <Route path="/inventario" element={<InventarioPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
