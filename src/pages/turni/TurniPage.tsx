@@ -370,21 +370,7 @@ export default function TurniPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="pt-6 border-t border-outline-variant">
-                    <div className="bg-surface-container p-4 rounded-xl">
-                      <p className="text-label-caps text-on-surface-variant mb-3">RIEPILOGO RAPIDO</p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center gap-2 text-label-xs">
-                          <Icon name="check_circle" className="text-[16px] text-primary" />
-                          <span>Notifica automatica attiva</span>
-                        </li>
-                        <li className="flex items-center gap-2 text-label-xs">
-                          <Icon name="check_circle" className="text-[16px] text-primary" />
-                          <span>Approvazione richiesta</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+
                 </div>
               </div>
 
