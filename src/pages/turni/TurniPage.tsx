@@ -94,8 +94,6 @@ export default function TurniPage() {
         max_volunteers: form.max_volunteers,
       }
 
-      const shiftId = editing ? editing.id : null
-
       if (editing) {
         const { error: err } = await supabase.from('shifts').update(shiftData).eq('id', editing.id)
         if (err) throw err
