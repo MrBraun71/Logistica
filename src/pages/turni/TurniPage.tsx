@@ -389,11 +389,11 @@ export default function TurniPage() {
               </div>
 
               {/* Actions */}
-              <div className="space-y-3">
-                <button type="submit" className="w-full h-[52px] bg-primary-container text-on-primary font-bold text-body-md rounded-xl shadow-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <div className="grid grid-cols-2 gap-3">
+                <button type="submit" className="h-[52px] bg-primary-container text-on-primary font-bold text-body-md rounded-xl shadow-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                   <Icon name="save" /> {editing ? 'Salva Turno' : 'Crea Turno'}
                 </button>
-                <button type="button" onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="w-full h-[52px] bg-surface text-on-surface-variant border border-outline-variant font-bold text-body-md rounded-xl hover:bg-surface-container transition-all">
+                <button type="button" onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="h-[52px] bg-surface text-on-surface-variant border border-outline-variant font-bold text-body-md rounded-xl hover:bg-surface-container transition-all">
                   Annulla
                 </button>
               </div>
