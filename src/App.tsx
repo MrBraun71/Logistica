@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage'
 import TurniPage from './pages/turni/TurniPage'
 import VeicoliPage from './pages/veicoli/VeicoliPage'
 import InventarioPage from './pages/inventario/InventarioPage'
+import ContactsPage from './pages/ContactsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/turni" element={<TurniPage />} />
             <Route path="/veicoli" element={<VeicoliPage />} />
             <Route path="/inventario" element={<InventarioPage />} />
+            <Route path="/contatti" element={<ContactsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

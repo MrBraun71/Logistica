@@ -11,7 +11,7 @@ const navItems = [
   { to: '/turni', icon: 'calendar_month', label: 'Turni' },
   { to: '/veicoli', icon: 'local_shipping', label: 'Veicoli' },
   { to: '/inventario', icon: 'inventory_2', label: 'Inventario' },
-  { to: '/impostazioni', icon: 'settings', label: 'Impostazioni' },
+  { to: '/contatti', icon: 'contact_page', label: 'Contatti' },
 ]
 
 const mobileNavItems = navItems.slice(0, 4)
