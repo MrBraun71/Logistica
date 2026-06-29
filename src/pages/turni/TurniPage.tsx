@@ -357,9 +357,9 @@ export default function TurniPage() {
                     <label className="block text-label-xs text-on-surface-variant mb-1">Veicoli Assegnati</label>
                     <div className="flex flex-wrap gap-2">
                       {vehicles.map(v => (
-                        <button key={v.id} type="button" onClick={() => toggleVehicle(v.id)}
+                        <button key={v.id} type="button" onClick={() => { if (v.is_active) toggleVehicle(v.id) }}
                           className={`px-3 py-2 rounded-lg text-label-xs font-medium border transition-all ${
-                            !v.is_active ? 'opacity-40' : ''
+                            !v.is_active ? 'opacity-40 cursor-not-allowed' : ''
                           } ${
                             selectedVehicles.includes(v.id)
                               ? 'bg-primary text-on-primary border-primary'
