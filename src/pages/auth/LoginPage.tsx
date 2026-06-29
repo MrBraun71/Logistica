@@ -21,53 +21,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-container-padding">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">Logistica</h1>
-          <p className="text-gray-500 mt-1">Gestionale per associazioni di volontariato</p>
+          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <span className="material-symbols-outlined text-on-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>volunteer_activism</span>
+          </div>
+          <h1 className="text-headline-lg text-on-surface">Croce Rossa Italiana</h1>
+          <p className="text-on-surface-variant text-body-lg mt-1">Comitato di Molfetta</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Accedi</h2>
+        <form onSubmit={handleSubmit} className="bg-surface-container-lowest rounded-xl soft-card-shadow p-6 space-y-4">
+          <h2 className="text-headline-md text-on-surface">Accedi</h2>
 
           {error && (
-            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>
+            <div className="bg-error-container text-on-error-container text-body-md p-3 rounded-lg">{error}</div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <label className="block text-label-caps text-on-surface-variant mb-1">Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <label className="block text-label-caps text-on-surface-variant mb-1">Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+              className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
+          <button type="submit" disabled={loading}
+            className="w-full h-[52px] bg-primary text-on-primary text-body-md font-semibold rounded-xl hover:brightness-110 disabled:opacity-50 transition-all active:scale-[0.98] shadow-sm">
             {loading ? 'Accesso in corso...' : 'Accedi'}
           </button>
 
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-body-md text-on-surface-variant">
             Non hai un account?{' '}
-            <Link to="/register" className="text-blue-600 hover:underline">Registrati</Link>
+            <Link to="/register" className="text-primary font-semibold hover:underline">Registrati</Link>
           </p>
         </form>
       </div>

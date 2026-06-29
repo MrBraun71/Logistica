@@ -11,14 +11,14 @@ import InventarioPage from './pages/inventario/InventarioPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
   if (!user) return <Navigate to="/login" replace />
   return <>{children}</>
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
   if (user) return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
@@ -26,17 +26,17 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function ConfigCheck({ children }: { children: React.ReactNode }) {
   if (!isSupabaseConfigured()) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-rose-400 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-red-200">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01" /></svg>
+          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-5 shadow-sm">
+            <span className="material-symbols-outlined text-on-primary text-3xl">warning</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Configurazione mancante</h1>
-          <p className="text-sm text-gray-400 mb-6">
-            Imposta le variabili <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">VITE_SUPABASE_URL</code> e{' '}
-            <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">VITE_SUPABASE_ANON_KEY</code> nel workflow GitHub.
+          <h1 className="text-headline-md text-on-surface mb-2">Configurazione mancante</h1>
+          <p className="text-body-md text-on-surface-variant mb-6">
+            Imposta le variabili <code className="text-label-xs bg-surface-container-high px-1.5 py-0.5 rounded">VITE_SUPABASE_URL</code> e{' '}
+            <code className="text-label-xs bg-surface-container-high px-1.5 py-0.5 rounded">VITE_SUPABASE_ANON_KEY</code> nel workflow GitHub.
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-label-caps text-on-surface-variant">
             Vedi il README per le istruzioni di configurazione.
           </p>
         </div>

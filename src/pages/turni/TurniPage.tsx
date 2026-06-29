@@ -170,16 +170,16 @@ export default function TurniPage() {
   const selectedCount = Object.values(selectedEquipment).reduce((a, b) => a + b, 0)
 
   const statusStyles: Record<string, string> = {
-    aperto: 'bg-emerald-50 text-emerald-700',
-    chiuso: 'bg-amber-50 text-amber-700',
-    completato: 'bg-gray-50 text-gray-500',
-    cancellato: 'bg-red-50 text-red-600',
+    aperto: 'status-aperto',
+    chiuso: 'status-manutenzione',
+    completato: 'bg-surface-container text-on-surface-variant',
+    cancellato: 'bg-error-container text-on-error-container',
   }
 
   // FORM VIEW
   if (showForm) {
     return (
-      <div className="max-w-container-max mx-auto">
+      <div className="max-w-[1080px] mx-auto">
         {/* Breadcrumb */}
         <nav className="flex gap-2 text-label-xs text-on-surface-variant mb-2">
           <button onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="hover:text-primary transition-colors">Turni</button>
@@ -200,11 +200,11 @@ export default function TurniPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
             {/* Left column: Main Details + Equipment */}
-            <div className="lg:col-span-8 space-y-gutter">
+            <div className="lg:col-span-8 space-y-3">
               {/* Main Details */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-sm">
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 soft-card-shadow">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary">
                     <Icon name="edit_note" />
@@ -214,24 +214,24 @@ export default function TurniPage() {
                 <div className="space-y-6">
                   <div className="group">
                     <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Titolo del turno</label>
-                    <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full h-11 px-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="es. Emergenza Sanitaria Mattutina" required />
+                      <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="es. Emergenza Sanitaria Mattutina" required />
                   </div>
                   <div className="group">
                     <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Descrizione</label>
-                    <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Inserisci note operative, istruzioni per i volontari o dettagli logistici particolari..." rows={4} />
+                    <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Inserisci note operative, istruzioni per i volontari o dettagli logistici particolari..." rows={4} />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="group">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Inizio</label>
                       <div className="relative">
-                        <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full h-11 px-md pl-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
+                        <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full h-11 px-4 pl-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
                         <Icon name="calendar_today" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]" />
                       </div>
                     </div>
                     <div className="group">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Fine</label>
                       <div className="relative">
-                        <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full h-11 px-md pl-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
+                        <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full h-11 px-4 pl-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
                         <Icon name="event_busy" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]" />
                       </div>
                     </div>
@@ -240,8 +240,8 @@ export default function TurniPage() {
               </div>
 
               {/* Equipment Inventory Search */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-                <div className="p-xl border-b border-outline-variant bg-surface-container-low">
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden soft-card-shadow">
+                <div className="p-6 border-b border-outline-variant bg-surface-container-low">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-tertiary-container/10 flex items-center justify-center text-tertiary">
@@ -268,7 +268,7 @@ export default function TurniPage() {
                   </div>
                 </div>
                 <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 p-md gap-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 p-3 gap-2">
                     {equipFiltered.map(eq => {
                       const qty = selectedEquipment[eq.id] || 0
                       const iconName = categoriaIcone[eq.categoria] || 'inventory_2'
@@ -313,7 +313,7 @@ export default function TurniPage() {
                   </div>
                 </div>
                 {selectedCount > 0 && (
-                  <div className="px-xl py-3 border-t border-outline-variant bg-surface-container-low">
+                  <div className="px-6 py-3 border-t border-outline-variant bg-surface-container-low">
                     <p className="text-label-xs text-on-surface-variant">{selectedCount} pezzi selezionati</p>
                   </div>
                 )}
@@ -321,8 +321,8 @@ export default function TurniPage() {
             </div>
 
             {/* Right column: Configuration */}
-            <div className="lg:col-span-4 space-y-gutter">
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-sm">
+            <div className="lg:col-span-4 space-y-3">
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 soft-card-shadow">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
                     <Icon name="settings_suggest" />
@@ -332,7 +332,7 @@ export default function TurniPage() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-label-xs text-on-surface-variant mb-1">Tipo di Turno</label>
-                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as Shift['type'] })} className="w-full h-11 px-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all">
+                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as Shift['type'] })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all">
                       <option value="ordinario">Ordinario</option>
                       <option value="straordinario">Straordinario</option>
                       <option value="emergenza">Emergenza 118</option>
@@ -358,7 +358,7 @@ export default function TurniPage() {
                   <div>
                     <label className="block text-label-xs text-on-surface-variant mb-1">Max Volontari</label>
                     <div className="flex items-center gap-4">
-                      <input type="number" value={form.max_volunteers} onChange={e => setForm({ ...form, max_volunteers: parseInt(e.target.value) || 1 })} className="w-24 h-11 px-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all text-center font-bold" min={1} />
+                      <input type="number" value={form.max_volunteers} onChange={e => setForm({ ...form, max_volunteers: parseInt(e.target.value) || 1 })} className="w-24 h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all text-center font-bold" min={1} />
                       <div className="text-label-xs text-on-surface-variant">
                         <p>Capacità massima</p>
                         <p>per questo turno.</p>
@@ -401,14 +401,14 @@ export default function TurniPage() {
 
   // LIST VIEW
   return (
-    <div className="max-w-container-max mx-auto space-y-xl">
-      <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+    <div className="max-w-[1080px] mx-auto space-y-8">
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-display-lg text-display-lg text-on-surface">Turni</h2>
+          <h2 className="text-headline-lg text-on-surface">Turni</h2>
           <p className="text-body-md text-on-surface-variant">Gestione turni, mezzi e attrezzatura</p>
         </div>
         <button onClick={() => { setEditing(null); setError(null); setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1 }); setSelectedVehicles([]); setSelectedEquipment({}); setShowForm(true) }}
-          className="bg-primary text-on-primary py-3 px-6 rounded-xl text-title-sm flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg">
+          className="bg-primary text-on-primary py-3 px-6 rounded-xl text-body-md font-semibold flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm">
           <Icon name="add" /> Nuovo Turno
         </button>
       </section>
@@ -426,9 +426,9 @@ export default function TurniPage() {
       </div>
 
       {/* Shift list */}
-      <section className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
-        <div className="p-lg border-b border-outline-variant flex justify-between items-center">
-          <div className="flex items-center gap-sm">
+        <section className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden soft-card-shadow">
+        <div className="p-4 border-b border-outline-variant flex justify-between items-center">
+          <div className="flex items-center gap-2">
             <Icon name="list_alt" className="text-primary" />
             <h3 className="text-title-sm text-on-surface">Elenco Turni</h3>
           </div>
@@ -445,34 +445,34 @@ export default function TurniPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-surface-container-low">
-                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Data</th>
-                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Nome Turno</th>
-                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Orario</th>
-                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Mezzo</th>
-                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Stato</th>
-                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Azioni</th>
+                  <th className="px-6 py-4 text-label-caps text-on-surface-variant">Data</th>
+                  <th className="px-6 py-4 text-label-caps text-on-surface-variant">Nome Turno</th>
+                  <th className="px-6 py-4 text-label-caps text-on-surface-variant">Orario</th>
+                  <th className="px-6 py-4 text-label-caps text-on-surface-variant">Mezzo</th>
+                  <th className="px-6 py-4 text-label-caps text-on-surface-variant">Stato</th>
+                  <th className="px-6 py-4 text-label-caps text-on-surface-variant">Azioni</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant">
                 {filtered.map((s) => (
                   <tr key={s.id} className="hover:bg-surface-container-low transition-colors group">
-                    <td className="px-lg py-4">
+                    <td className="px-6 py-4">
                       <div className="flex flex-col items-center justify-center w-14 h-14 bg-primary-container/10 rounded-lg border border-primary-container/20">
                         <span className="text-primary font-bold text-lg leading-none">{format(parseISO(s.start_time), "d")}</span>
                         <span className="text-primary text-label-xs text-[10px] uppercase">{format(parseISO(s.start_time), "MMM", { locale: it })}</span>
                       </div>
                     </td>
-                    <td className="px-lg py-4">
+                    <td className="px-6 py-4">
                       <p className="text-body-md text-on-surface font-medium">{s.title}</p>
                       <p className="text-label-xs text-on-surface-variant">{s.type}</p>
                     </td>
-                    <td className="px-lg py-4">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-1 text-on-surface-variant text-body-sm">
                         <Icon name="schedule" className="text-sm" />
                         {format(parseISO(s.start_time), "HH:mm")} — {format(parseISO(s.end_time), "HH:mm")}
                       </div>
                     </td>
-                    <td className="px-lg py-4">
+                    <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {s.shift_vehicles && s.shift_vehicles.length > 0 ? (
                           s.shift_vehicles.map(sv => (
@@ -486,10 +486,10 @@ export default function TurniPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-lg py-4">
+                    <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-label-xs font-semibold uppercase tracking-wide ${statusStyles[s.status] || ''}`}>{s.status}</span>
                     </td>
-                    <td className="px-lg py-4">
+                    <td className="px-6 py-4">
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         {isAdmin && (
                           <button onClick={() => {
@@ -509,12 +509,12 @@ export default function TurniPage() {
                           </button>
                         )}
                         {s.status === 'aperto' && (
-                          <button onClick={() => handleStatusChange(s.id, 'chiuso')} className="px-3 py-1 text-label-xs font-bold bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 border border-amber-200 transition-colors">
+                          <button onClick={() => handleStatusChange(s.id, 'chiuso')} className="px-3 py-1 text-status-label font-bold bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 border border-amber-200 transition-colors">
                             Chiudi
                           </button>
                         )}
                         {s.status === 'chiuso' && isAdmin && (
-                          <button onClick={() => handleStatusChange(s.id, 'completato')} className="px-3 py-1 text-label-xs font-bold bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 border border-emerald-200 transition-colors">
+                          <button onClick={() => handleStatusChange(s.id, 'completato')} className="px-3 py-1 text-status-label font-bold bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 border border-emerald-200 transition-colors">
                             Completa
                           </button>
                         )}

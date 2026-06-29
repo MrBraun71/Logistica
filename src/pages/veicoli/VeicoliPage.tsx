@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import type { Vehicle } from '../../types/database'
-import { Search, Pencil, Car, Plus, X, Circle } from 'lucide-react'
 
-const typeGradients: Record<string, string> = {
-  Ambulanza: 'from-red-500 to-rose-400',
-  Auto: 'from-blue-500 to-cyan-400',
-  Furgone: 'from-orange-500 to-amber-400',
+function Icon({ name, className = '' }: { name: string; className?: string }) {
+  return <span className={`material-symbols-outlined ${className}`}>{name}</span>
+}
+
+const typeIcone: Record<string, string> = {
+  Ambulanza: 'local_hospital',
+  Auto: 'directions_car',
+  Furgone: 'local_shipping',
 }
 
 export default function VeicoliPage() {
@@ -50,80 +53,82 @@ export default function VeicoliPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[1080px] mx-auto space-y-8">
       <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-gray-900">Veicoli</h1><p className="text-gray-400 text-sm mt-0.5">Gestione mezzi e automezzi</p></div>
+        <div>
+          <h2 className="text-headline-lg text-on-surface">Veicoli</h2>
+          <p className="text-on-surface-variant text-body-lg">Gestione mezzi e automezzi</p>
+        </div>
         <button onClick={() => { setEditing(null); setError(null); setForm({ name: '', license_plate: '', type: '' }); setShowForm(true) }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-400 text-white rounded-xl text-sm font-medium shadow-lg shadow-rose-200 hover:shadow-rose-300 hover:-translate-y-0.5 transition-all duration-200">
-          <Plus className="w-4 h-4" /> Nuovo
+          className="bg-primary text-on-primary py-3 px-6 rounded-xl text-body-md font-semibold flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm">
+          <Icon name="add" /> Nuovo
         </button>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+        <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" />
         <input type="text" placeholder="Cerca veicoli..." value={search} onChange={e => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all shadow-sm" />
+          className="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-body-md focus:ring-2 focus:ring-primary transition-all soft-card-shadow" />
       </div>
 
-      {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl border border-red-100">{error}</div>}
+      {error && <div className="bg-error-container text-on-error-container text-body-md p-3 rounded-xl">{error}</div>}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+          <div className="bg-surface-container-lowest rounded-2xl w-full max-w-md p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">{editing ? 'Modifica' : 'Nuovo'} Veicolo</h2>
-              <button onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="p-1.5 rounded-lg hover:bg-gray-100"><X className="w-5 h-5 text-gray-400" /></button>
+              <h2 className="text-headline-md text-on-surface">{editing ? 'Modifica' : 'Nuovo'} Veicolo</h2>
+              <button onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="p-1.5 rounded-lg hover:bg-surface-container transition-colors"><Icon name="close" className="text-on-surface-variant" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Nome</label>
-                <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition-all" required />
+                <label className="block text-label-caps text-on-surface-variant mb-1.5">Nome</label>
+                <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-xl text-body-md focus:ring-2 focus:ring-primary transition-all" required />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Targa</label>
-                <input type="text" value={form.license_plate} onChange={e => setForm({ ...form, license_plate: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition-all" required />
+                <label className="block text-label-caps text-on-surface-variant mb-1.5">Targa</label>
+                <input type="text" value={form.license_plate} onChange={e => setForm({ ...form, license_plate: e.target.value })} className="w-full h-11 px-4 bg-white border border-outline-variant rounded-xl text-body-md focus:ring-2 focus:ring-primary transition-all" required />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Tipo</label>
-                <input type="text" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} placeholder="es. Ambulanza, Auto, Furgone" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition-all" />
+                <label className="block text-label-caps text-on-surface-variant mb-1.5">Tipo</label>
+                <input type="text" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} placeholder="es. Ambulanza, Auto, Furgone" className="w-full h-11 px-4 bg-white border border-outline-variant rounded-xl text-body-md focus:ring-2 focus:ring-primary transition-all" />
               </div>
               <div className="flex gap-3 pt-1">
-                <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-rose-500 to-pink-400 text-white rounded-xl text-sm font-medium shadow-lg shadow-rose-200 transition-all">{editing ? 'Salva' : 'Crea'}</button>
-                <button type="button" onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="flex-1 py-2.5 bg-white text-gray-600 rounded-xl text-sm font-medium border border-gray-200 hover:border-gray-300 transition-all">Annulla</button>
+                <button type="submit" className="flex-1 h-[52px] bg-primary text-on-primary text-body-md font-semibold rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-sm">{editing ? 'Salva' : 'Crea'}</button>
+                <button type="button" onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="flex-1 h-[52px] bg-white text-on-surface-variant text-body-md font-semibold rounded-xl border border-outline-variant hover:bg-surface-container transition-all">Annulla</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Vehicle cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {filtered.map((v) => (
-          <div key={v.id} className={`group bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all duration-300 ${v.is_active ? 'border-gray-100' : 'border-red-100 bg-red-50/30'}`}>
+          <div key={v.id} className={`group bg-surface-container-lowest rounded-2xl p-5 soft-card-shadow border transition-all ${v.is_active ? 'border-surface-container-low' : 'border-error-container bg-error-container/10'}`}>
             <div className="flex items-start justify-between mb-4">
-              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${typeGradients[v.type as keyof typeof typeGradients] || 'from-gray-400 to-gray-300'} flex items-center justify-center shadow-sm`}>
-                <Car className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-primary-container/10 flex items-center justify-center">
+                <Icon name={typeIcone[v.type as keyof typeof typeIcone] || 'directions_car'} className="text-primary text-2xl" />
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => startEdit(v)} className="p-1.5 text-gray-300 hover:text-rose-500 transition-colors"><Pencil className="w-4 h-4" /></button>
-                <button onClick={() => handleToggleActive(v)} className="p-1.5 text-gray-300 hover:text-red-500 transition-colors">
-                  <Circle className={`w-4 h-4 ${v.is_active ? '' : 'fill-red-400 text-red-400'}`} />
+                <button onClick={() => startEdit(v)} className="p-1.5 text-on-surface-variant hover:text-primary transition-colors"><Icon name="edit" className="text-[18px]" /></button>
+                <button onClick={() => handleToggleActive(v)} className="p-1.5 text-on-surface-variant hover:text-error transition-colors">
+                  <Icon name={v.is_active ? 'toggle_off' : 'toggle_on'} className="text-[18px]" />
                 </button>
               </div>
             </div>
-            <h3 className="font-semibold text-gray-900">{v.name}</h3>
-            <p className="text-sm text-gray-400 mt-0.5">{v.license_plate}{v.type ? ` • ${v.type}` : ''}</p>
+            <h3 className="text-body-md font-semibold text-on-surface">{v.name}</h3>
+            <p className="text-body-md text-on-surface-variant mt-0.5">{v.license_plate}{v.type ? ` • ${v.type}` : ''}</p>
             <div className="mt-3">
-              <span className={`text-[11px] px-2.5 py-1 rounded-lg font-medium ${v.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+              <span className={`text-status-label px-2.5 py-1 rounded-lg font-semibold ${v.is_active ? 'status-disponibile' : 'bg-error-container text-on-error-container'}`}>
                 {v.is_active ? 'Attivo' : 'Inattivo'}
               </span>
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full text-center py-16 text-gray-300 bg-white rounded-2xl border border-gray-100">
-            <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">Nessun veicolo trovato</p>
+          <div className="col-span-full text-center py-16 text-on-surface-variant bg-surface-container-lowest rounded-2xl soft-card-shadow border border-surface-container-low">
+            <Icon name="local_shipping" className="text-4xl opacity-50 mb-3" />
+            <p className="text-body-md">Nessun veicolo trovato</p>
           </div>
         )}
       </div>

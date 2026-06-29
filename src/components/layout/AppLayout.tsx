@@ -69,21 +69,20 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar (Desktop) */}
-      <aside className="w-[260px] h-screen fixed left-0 top-0 bg-white shadow-[1px_0_12px_rgba(0,0,0,0.04)] hidden lg:flex flex-col py-lg px-md z-50">
-        <div className="mb-xl px-2">
-          <div className="flex items-center gap-sm mb-base">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+      <aside className="w-[260px] h-screen fixed left-0 top-0 bg-surface-container-lowest hidden lg:flex flex-col py-6 px-4 z-50 shadow-[0_0_20px_rgba(29,53,128,0.06)]">
+        <div className="mb-8 px-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
               <Icon name="volunteer_activism" />
             </div>
             <div>
-              <h1 className="text-headline-md text-headline-md font-bold text-primary leading-tight">Croce Rossa Italiana</h1>
-              <p className="text-on-surface-variant text-label-xs">Comitato di Molfetta</p>
+              <h1 className="font-headline text-headline-md font-bold text-primary leading-tight">Croce Rossa Italiana</h1>
+              <p className="text-on-surface-variant text-label-caps">Comitato di Molfetta</p>
             </div>
           </div>
         </div>
@@ -95,9 +94,9 @@ export function AppLayout() {
               to={item.to}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-md px-4 py-3 rounded-lg transition-colors ${
+                `flex items-center gap-4 px-4 py-3 rounded-lg transition-colors ${
                   isActive
-                    ? 'text-primary font-bold border-r-4 border-primary bg-surface-container-high'
+                    ? 'text-primary font-semibold bg-primary-container/10 border-r-2 border-primary'
                     : 'text-on-surface-variant hover:bg-surface-container-high'
                 }`
               }
@@ -108,14 +107,14 @@ export function AppLayout() {
           ))}
         </nav>
 
-        <div className="pt-lg mt-auto border-t border-outline-variant">
+        <div className="pt-6 mt-auto border-t border-outline-variant">
           <button
             onClick={() => { navigate('/turni') }}
-            className="w-full bg-primary text-on-primary py-3 px-4 rounded-xl text-title-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 mb-4"
+            className="w-full bg-primary text-on-primary py-3 px-4 rounded-xl text-body-md font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 mb-4 shadow-sm"
           >
             <Icon name="add" /> Nuovo Turno
           </button>
-          <span className="flex items-center gap-md px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-default">
+          <span className="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-default">
             <Icon name="help" />
             <span className="text-body-md">Supporto</span>
           </span>
@@ -124,24 +123,23 @@ export function AppLayout() {
 
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-[260px]">
-        {/* Top bar */}
-        <header className="top-0 sticky z-40 bg-white/90 backdrop-blur-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] flex justify-between items-center h-16 px-gutter">
-          <div className="flex items-center gap-lg flex-1">
-            {/* Mobile hamburger */}
+        {/* Top bar — glass-header */}
+        <header className="top-0 sticky z-40 glass-header flex justify-between items-center h-16 px-container-padding border-b border-surface-container-low">
+          <div className="flex items-center gap-6 flex-1">
             <button className="lg:hidden p-2 text-on-surface-variant hover:text-primary" onClick={() => setSidebarOpen(true)}>
               <Icon name="menu" />
             </button>
             <div className="relative w-full max-w-md hidden md:block">
-              <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" />
+              <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" />
               <input
-                className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-primary text-body-sm placeholder:text-outline"
+                className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-primary text-body-md placeholder:text-on-surface-variant/60"
                 placeholder="Cerca..."
                 type="text"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-md">
+          <div className="flex items-center gap-4">
             <div className="relative" ref={notifRef}>
               <button onClick={() => setShowNotif(!showNotif)} className="p-2 text-on-surface-variant hover:text-primary transition-all active:scale-95 relative">
                 <Icon name="notifications" />
@@ -152,21 +150,21 @@ export function AppLayout() {
                 )}
               </button>
               {showNotif && (
-                <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto">
-                  <div className="p-md border-b border-outline-variant flex items-center justify-between">
-                    <span className="text-title-sm font-semibold text-on-surface">Notifiche</span>
-                    <span className="text-label-xs text-on-surface-variant">{unreadCount} non lette</span>
+                <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest rounded-xl soft-card-shadow z-50 max-h-96 overflow-y-auto">
+                  <div className="p-4 border-b border-outline-variant flex items-center justify-between">
+                    <span className="text-body-md font-semibold text-on-surface">Notifiche</span>
+                    <span className="text-label-caps text-on-surface-variant">{unreadCount} non lette</span>
                   </div>
                   {notifications.length === 0 ? (
-                    <div className="p-6 text-center text-on-surface-variant text-body-sm">Nessuna notifica</div>
+                    <div className="p-6 text-center text-on-surface-variant text-body-md">Nessuna notifica</div>
                   ) : (
                     notifications.map(n => (
                       <button key={n.id} onClick={() => { if (!n.is_read) markRead(n.id) }}
-                        className={`w-full text-left p-md flex items-start gap-3 hover:bg-surface-container transition-colors border-b border-outline-variant last:border-0 ${n.is_read ? 'opacity-60' : ''}`}>
+                        className={`w-full text-left p-4 flex items-start gap-3 hover:bg-surface-container transition-colors border-b border-outline-variant last:border-0 ${n.is_read ? 'opacity-60' : ''}`}>
                         <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${n.is_read ? 'bg-transparent' : 'bg-primary'}`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-body-sm font-medium text-on-surface truncate">{n.title}</p>
-                          <p className="text-label-xs text-on-surface-variant mt-0.5 line-clamp-2">{n.message}</p>
+                          <p className="text-body-md font-medium text-on-surface truncate">{n.title}</p>
+                          <p className="text-label-caps text-on-surface-variant mt-0.5 line-clamp-2">{n.message}</p>
                           <p className="text-[10px] text-outline mt-1">{format(parseISO(n.created_at), "d MMM HH:mm", { locale: it })}</p>
                         </div>
                       </button>
@@ -179,12 +177,12 @@ export function AppLayout() {
               <Icon name="history" />
             </button>
             <div className="h-8 w-px bg-outline-variant mx-2 hidden sm:block" />
-            <div className="flex items-center gap-sm cursor-pointer hover:opacity-80 transition-opacity" onClick={handleSignOut}>
+            <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleSignOut}>
               <div className="text-right hidden sm:block">
-                <p className="text-title-sm text-title-sm text-on-surface">{profile?.first_name}</p>
-                <p className="text-label-xs text-on-surface-variant">{isAdmin ? 'Amministratore' : 'Utente'}</p>
+                <p className="text-body-md font-semibold text-on-surface">{profile?.first_name}</p>
+                <p className="text-label-caps text-on-surface-variant">{isAdmin ? 'Amministratore' : 'Utente'}</p>
               </div>
-              <div className="w-10 h-10 rounded-full border-2 border-primary-container bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm">
+              <div className="w-10 h-10 rounded-full border-2 border-primary-container bg-primary-fixed flex items-center justify-center text-primary font-bold text-body-md">
                 {profile?.first_name?.[0]}{profile?.last_name?.[0]}
               </div>
             </div>
@@ -192,28 +190,28 @@ export function AppLayout() {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-gutter min-h-screen">
+        <main className="flex-1 p-container-padding min-h-screen">
           <Outlet />
         </main>
       </div>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-white/90 backdrop-blur-lg border-t border-[#f2f2f7] shadow-[0_-2px_10px_rgba(0,0,0,0.04)] lg:hidden">
+      {/* Bottom Navigation (Mobile) — redesigned */}
+      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-lowest/90 backdrop-blur-lg rounded-t-xl shadow-[0_-4px_12px_rgba(29,53,128,0.08)] lg:hidden">
         {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center py-1 ${
+              `flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
                 isActive
-                  ? 'bg-primary-container text-on-primary-container rounded-xl px-4'
-                  : 'text-on-surface-variant'
+                  ? 'bg-secondary-container text-on-secondary-container'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
               }`
             }
           >
             <Icon name={item.icon} />
-            <span className="text-label-xs">{item.label}</span>
+            <span className="text-label-caps">{item.label}</span>
           </NavLink>
         ))}
       </nav>
