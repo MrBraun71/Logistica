@@ -75,14 +75,14 @@ export function AppLayout() {
       )}
 
       {/* Sidebar (Desktop) */}
-      <aside className="w-[260px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant hidden lg:flex flex-col py-lg px-md z-50">
+      <aside className="w-[260px] h-screen fixed left-0 top-0 bg-white shadow-[1px_0_12px_rgba(0,0,0,0.04)] hidden lg:flex flex-col py-lg px-md z-50">
         <div className="mb-xl px-2">
           <div className="flex items-center gap-sm mb-base">
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
               <Icon name="volunteer_activism" />
             </div>
             <div>
-              <h1 className="text-headline-md text-headline-md font-bold text-primary leading-tight">Logistica</h1>
+              <h1 className="text-headline-md text-headline-md font-bold text-primary leading-tight">Croce Rossa Italiana</h1>
               <p className="text-on-surface-variant text-label-xs">Comitato di Molfetta</p>
             </div>
           </div>
@@ -125,7 +125,7 @@ export function AppLayout() {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-[260px]">
         {/* Top bar */}
-        <header className="top-0 sticky z-40 bg-surface border-b border-outline-variant flex justify-between items-center h-16 px-gutter">
+        <header className="top-0 sticky z-40 bg-white/90 backdrop-blur-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] flex justify-between items-center h-16 px-gutter">
           <div className="flex items-center gap-lg flex-1">
             {/* Mobile hamburger */}
             <button className="lg:hidden p-2 text-on-surface-variant hover:text-primary" onClick={() => setSidebarOpen(true)}>
@@ -135,7 +135,7 @@ export function AppLayout() {
               <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" />
               <input
                 className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-primary text-body-sm placeholder:text-outline"
-                placeholder="Cerca turni, attrezzatura o personale..."
+                placeholder="Cerca..."
                 type="text"
               />
             </div>
@@ -198,7 +198,7 @@ export function AppLayout() {
       </div>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface border-t border-outline-variant shadow-lg lg:hidden">
+      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-white/90 backdrop-blur-lg border-t border-[#f2f2f7] shadow-[0_-2px_10px_rgba(0,0,0,0.04)] lg:hidden">
         {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
