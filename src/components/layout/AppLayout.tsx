@@ -11,7 +11,10 @@ const navItems = [
   { to: '/turni', icon: 'calendar_month', label: 'Turni' },
   { to: '/veicoli', icon: 'local_shipping', label: 'Veicoli' },
   { to: '/inventario', icon: 'inventory_2', label: 'Inventario' },
+  { to: '/impostazioni', icon: 'settings', label: 'Impostazioni' },
 ]
+
+const mobileNavItems = navItems.slice(0, 4)
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
   return <span className={`material-symbols-outlined ${className}`}>{name}</span>
@@ -112,9 +115,9 @@ export function AppLayout() {
           >
             <Icon name="add" /> Nuovo Turno
           </button>
-          <span className="flex items-center gap-md px-4 py-3 rounded-lg text-on-surface-variant cursor-default">
+          <span className="flex items-center gap-md px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-default">
             <Icon name="help" />
-            <span className="text-body-md">{profile?.first_name} {profile?.last_name}</span>
+            <span className="text-body-md">Supporto</span>
           </span>
         </div>
       </aside>
@@ -139,7 +142,6 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-md">
-            {/* Notifications */}
             <div className="relative" ref={notifRef}>
               <button onClick={() => setShowNotif(!showNotif)} className="p-2 text-on-surface-variant hover:text-primary transition-all active:scale-95 relative">
                 <Icon name="notifications" />
@@ -173,12 +175,14 @@ export function AppLayout() {
                 </div>
               )}
             </div>
-
+            <button className="p-2 text-on-surface-variant hover:text-primary transition-all active:scale-95">
+              <Icon name="history" />
+            </button>
             <div className="h-8 w-px bg-outline-variant mx-2 hidden sm:block" />
-            <div className="flex items-center gap-sm cursor-pointer group" onClick={handleSignOut}>
+            <div className="flex items-center gap-sm cursor-pointer hover:opacity-80 transition-opacity" onClick={handleSignOut}>
               <div className="text-right hidden sm:block">
                 <p className="text-title-sm text-title-sm text-on-surface">{profile?.first_name}</p>
-                <p className="text-label-xs text-on-surface-variant">{isAdmin ? 'Amministratore' : 'Utente'}</p>
+                <p className="text-label-xs text-on-surface-variant">{isAdmin ? 'Admin Dashboard' : 'Utente'}</p>
               </div>
               <div className="w-10 h-10 rounded-full border-2 border-primary-container bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm">
                 {profile?.first_name?.[0]}{profile?.last_name?.[0]}
@@ -195,7 +199,7 @@ export function AppLayout() {
 
       {/* Bottom Navigation (Mobile) */}
       <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface border-t border-outline-variant shadow-lg lg:hidden">
-        {navItems.map((item) => (
+        {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -213,6 +217,14 @@ export function AppLayout() {
           </NavLink>
         ))}
       </nav>
+
+      {/* FAB for Mobile */}
+      <button
+        onClick={() => navigate('/turni')}
+        className="fixed right-6 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center lg:hidden active:scale-90 transition-all"
+      >
+        <Icon name="add" className="text-3xl" />
+      </button>
     </div>
   )
 }

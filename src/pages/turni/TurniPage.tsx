@@ -78,13 +78,6 @@ export default function TurniPage() {
     return `${e.articolo} ${e.id_numero} ${e.categoria}`.toLowerCase().includes(q)
   })
 
-  const equipGrouped = equipFiltered.reduce<Record<string, Equipment[]>>((acc, e) => {
-    const cat = e.categoria || 'Altro'
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push(e)
-    return acc
-  }, {})
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -259,44 +252,43 @@ export default function TurniPage() {
                     <input value={equipSearch} onChange={e => setEquipSearch(e.target.value)} className="w-full h-11 pl-10 pr-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all" placeholder="Cerca attrezzatura per nome o codice..." type="text" />
                   </div>
                 </div>
-                <div className="max-h-[320px] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#e1e2ed transparent' }}>
+                <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
                   <div className="grid grid-cols-1 sm:grid-cols-2 p-md gap-sm">
-                    {Object.entries(equipGrouped).map(([cat, items]) => (
-                      items.map(eq => {
-                        const qty = selectedEquipment[eq.id] || 0
-                        const iconName = categoriaIcone[cat] || 'inventory_2'
-                        return (
-                          <div key={eq.id} className="flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-outline-variant hover:bg-surface-container transition-all group">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded flex items-center justify-center ${
-                                cat === 'DAE' ? 'bg-error-container/20 text-error' : 'bg-on-secondary-container/10 text-secondary'
-                              }`}>
-                                <Icon name={iconName} className="text-[20px]" />
-                              </div>
-                              <div>
-                                <p className="text-body-sm font-medium">{eq.articolo}</p>
-                                <p className="text-label-xs text-on-surface-variant">{eq.id_numero}</p>
-                              </div>
+                    {equipFiltered.map(eq => {
+                      const qty = selectedEquipment[eq.id] || 0
+                      const iconName = categoriaIcone[eq.categoria] || 'inventory_2'
+                      const subtitle = eq.sede || eq.id_numero
+                      return (
+                        <div key={eq.id} className="flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-outline-variant hover:bg-surface-container transition-all group">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded flex items-center justify-center ${
+                              eq.categoria === 'DAE' ? 'bg-error-container/20 text-error' : 'bg-on-secondary-container/10 text-secondary'
+                            }`}>
+                              <Icon name={iconName} className="text-[20px]" />
                             </div>
-                            <div className="flex items-center gap-1">
-                              {qty > 0 && (
-                                <>
-                                  <button type="button" onClick={() => removeEquipment(eq.id)}
-                                    className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100 text-on-surface-variant hover:bg-red-100 hover:text-error transition-all">
-                                    <Icon name="remove" className="text-[18px]" />
-                                  </button>
-                                  <span className="text-label-xs font-bold text-on-surface w-5 text-center">{qty}</span>
-                                </>
-                              )}
-                              <button type="button" onClick={() => toggleEquipment(eq.id)}
-                                className="w-7 h-7 rounded-full flex items-center justify-center bg-primary text-on-primary hover:scale-110 active:scale-90 transition-all opacity-0 group-hover:opacity-100">
-                                <Icon name="add" className="text-[18px]" />
-                              </button>
+                            <div>
+                              <p className="text-body-sm font-medium">{eq.articolo}</p>
+                              <p className="text-label-xs text-on-surface-variant">{subtitle}</p>
                             </div>
                           </div>
-                        )
-                      })
-                    ))}
+                          <div className="flex items-center gap-1">
+                            {qty > 0 && (
+                              <>
+                                <button type="button" onClick={() => removeEquipment(eq.id)}
+                                  className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100 text-on-surface-variant hover:bg-red-100 hover:text-error transition-all">
+                                  <Icon name="remove" className="text-[18px]" />
+                                </button>
+                                <span className="text-label-xs font-bold text-on-surface w-5 text-center">{qty}</span>
+                              </>
+                            )}
+                            <button type="button" onClick={() => toggleEquipment(eq.id)}
+                              className="w-7 h-7 rounded-full flex items-center justify-center bg-primary text-on-primary hover:scale-110 active:scale-90 transition-all opacity-0 group-hover:opacity-100">
+                              <Icon name="add" className="text-[18px]" />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
                     {equipmentItems.length === 0 && (
                       <div className="col-span-full text-center py-8 text-on-surface-variant text-body-sm">
                         <Icon name="inventory_2" className="text-3xl opacity-50 mb-2" />
@@ -328,8 +320,8 @@ export default function TurniPage() {
                     <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as Shift['type'] })} className="w-full h-11 px-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all">
                       <option value="ordinario">Ordinario</option>
                       <option value="straordinario">Straordinario</option>
-                      <option value="emergenza">Emergenza</option>
-                      <option value="evento">Evento</option>
+                      <option value="emergenza">Emergenza 118</option>
+                      <option value="evento">Logistico/Manutenzione</option>
                     </select>
                   </div>
                   <div>
@@ -359,7 +351,7 @@ export default function TurniPage() {
                         </li>
                         <li className="flex items-center gap-2 text-label-xs">
                           <Icon name="check_circle" className="text-[16px] text-primary" />
-                          <span>{selectedCount} pezzi attrezzatura</span>
+                          <span>Approvazione richiesta</span>
                         </li>
                       </ul>
                     </div>

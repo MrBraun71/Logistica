@@ -45,6 +45,11 @@ export default function DashboardPage() {
           <h2 className="text-display-lg text-display-lg text-on-surface">Bentornato, {profile?.first_name}</h2>
           <p className="text-body-md text-on-surface-variant">Ecco una panoramica della flotta e dei turni per oggi.</p>
         </div>
+        <div className="flex gap-sm">
+          <button className="px-md py-2 border border-outline-variant rounded-lg text-body-sm flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+            <Icon name="download" /> Report PDF
+          </button>
+        </div>
       </section>
 
       {/* Stats Cards */}
@@ -94,7 +99,7 @@ export default function DashboardPage() {
             <Icon name="list_alt" className="text-primary" />
             <h3 className="text-title-sm text-on-surface">Prossimi Turni</h3>
           </div>
-          <span className="text-label-xs text-on-surface-variant">{shifts.length} in programma</span>
+          <button className="text-primary text-body-sm hover:underline">Vedi tutti</button>
         </div>
 
         {shifts.length === 0 ? (
@@ -112,6 +117,7 @@ export default function DashboardPage() {
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Orario</th>
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Mezzo</th>
                   <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Stato</th>
+                  <th className="px-lg py-4 text-label-xs text-outline uppercase tracking-wider">Azioni</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant">
@@ -141,11 +147,16 @@ export default function DashboardPage() {
                     </td>
                     <td className="px-lg py-4">
                       <span className={`px-3 py-1 rounded-full text-label-xs font-semibold uppercase tracking-wide ${
-                        s.status === 'aperto' ? 'bg-emerald-50 text-emerald-700' :
+                        s.status === 'aperto' ? 'shift-status-aperto' :
                         s.status === 'chiuso' ? 'bg-amber-50 text-amber-700' :
                         s.status === 'completato' ? 'bg-gray-50 text-gray-500' :
                         'bg-red-50 text-red-600'
                       }`}>{s.status}</span>
+                    </td>
+                    <td className="px-lg py-4">
+                      <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors opacity-0 group-hover:opacity-100">
+                        <Icon name="more_vert" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -153,6 +164,60 @@ export default function DashboardPage() {
             </table>
           </div>
         )}
+      </section>
+
+      {/* Mappa Operativa Real-Time */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+        <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+          <h3 className="text-title-sm text-on-surface mb-md">Mappa Operativa Real-Time</h3>
+          <div className="relative h-[300px] w-full rounded-lg bg-surface-container-high overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-primary-container/20 to-surface-container-high flex items-center justify-center">
+              <div className="text-center text-on-surface-variant">
+                <Icon name="map" className="text-5xl mb-2 opacity-40" />
+                <p className="text-body-sm opacity-60">Mappa Hub Principale — Milano Nord</p>
+              </div>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+              <div className="bg-white/90 backdrop-blur-md p-3 rounded-lg shadow-lg text-on-surface">
+                <p className="text-label-xs font-bold uppercase mb-1">Hub Principale</p>
+                <p className="text-body-sm">Milano Nord - Terminal A</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button className="w-10 h-10 rounded-lg bg-white shadow-md flex items-center justify-center text-primary"><Icon name="add" /></button>
+                <button className="w-10 h-10 rounded-lg bg-white shadow-md flex items-center justify-center text-primary"><Icon name="remove" /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+          <h3 className="text-title-sm text-on-surface mb-md">Promemoria Flotta</h3>
+          <div className="space-y-4">
+            <div className="flex items-start gap-md p-3 rounded-lg hover:bg-surface-container-high transition-colors">
+              <div className="mt-1 w-2 h-2 rounded-full bg-error"></div>
+              <div>
+                <p className="text-body-sm font-medium text-on-surface">Scadenza Assicurazione</p>
+                <p className="text-label-xs text-on-surface-variant">Veicolo in scadenza tra 2 giorni.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-md p-3 rounded-lg hover:bg-surface-container-high transition-colors">
+              <div className="mt-1 w-2 h-2 rounded-full bg-primary"></div>
+              <div>
+                <p className="text-body-sm font-medium text-on-surface">Revisione Veicoli</p>
+                <p className="text-label-xs text-on-surface-variant">Pianificare revisione entro venerdì.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-md p-3 rounded-lg hover:bg-surface-container-high transition-colors">
+              <div className="mt-1 w-2 h-2 rounded-full bg-tertiary"></div>
+              <div>
+                <p className="text-body-sm font-medium text-on-surface">Aggiornamento Documenti</p>
+                <p className="text-label-xs text-on-surface-variant">Caricare documenti nuovi assunti.</p>
+              </div>
+            </div>
+          </div>
+          <button className="w-full mt-lg py-2 text-primary text-title-sm border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">
+            Gestisci Promemoria
+          </button>
+        </div>
       </section>
     </div>
   )
