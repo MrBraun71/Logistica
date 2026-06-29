@@ -75,7 +75,7 @@ export function AppLayout() {
 
       {/* Sidebar */}
       <aside className={`w-[260px] h-screen fixed left-0 top-0 bg-surface-container-lowest flex-col py-6 px-4 z-50 shadow-[0_0_20px_rgba(29,53,128,0.06)] transition-transform duration-300 ${sidebarOpen ? 'flex' : 'hidden'} lg:flex`}>
-        <div className="mb-8 px-2">
+        <div className="mb-8 px-2 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
               <Icon name="volunteer_activism" />
@@ -85,6 +85,9 @@ export function AppLayout() {
               <p className="text-on-surface-variant text-label-caps">Comitato di Molfetta</p>
             </div>
           </div>
+          <button className="lg:hidden p-2 text-on-surface-variant hover:text-primary" onClick={() => setSidebarOpen(false)}>
+            <Icon name="close" />
+          </button>
         </div>
 
         <nav className="flex-grow space-y-1">
