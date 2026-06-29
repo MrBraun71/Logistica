@@ -36,6 +36,7 @@ export default function TurniPage() {
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<ShiftFull | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('tutti')
   const [equipSearch, setEquipSearch] = useState('')
   const [equipSearchMode, setEquipSearchMode] = useState<'tutti' | 'id' | 'categoria'>('tutti')
@@ -81,7 +82,9 @@ export default function TurniPage() {
     if (data) setEquipmentItems(data)
   }
 
-  const filtered = filter === 'tutti' ? shifts : shifts.filter(s => s.status === filter)
+  const filtered = (filter === 'tutti' ? shifts : shifts.filter(s => s.status === filter)).filter(s =>
+    !search || `${s.title} ${s.type} ${s.description || ''} ${s.start_time.slice(0, 10)}`.toLowerCase().includes(search.toLowerCase())
+  )
 
   const equipFiltered = equipmentItems.filter(e => {
     if (!equipSearch) return true
@@ -412,7 +415,15 @@ export default function TurniPage() {
         </button>
       </section>
 
-      {/* Filter pills */}
+      {/* Search + Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" />
+          <input type="text" placeholder="Cerca per titolo, tipo, data..." value={search} onChange={e => setSearch(e.target.value)}
+            className="w-full h-11 pl-10 pr-4 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary transition-all text-body-md" />
+        </div>
+      </div>
+
       <div className="flex gap-2 overflow-x-auto pb-1">
         {['tutti', 'aperto', 'chiuso', 'completato', 'cancellato'].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
