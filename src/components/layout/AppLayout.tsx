@@ -33,7 +33,10 @@ export function AppLayout() {
   const isAdmin = profile?.role === 'admin'
 
   useEffect(() => {
-    if (isAdmin && profile?.organization_id) loadNotifications()
+    if (!isAdmin || !profile?.organization_id) return
+    loadNotifications()
+    const interval = setInterval(loadNotifications, 15000)
+    return () => clearInterval(interval)
   }, [isAdmin, profile?.organization_id])
 
   useEffect(() => {
