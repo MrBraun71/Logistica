@@ -133,14 +133,6 @@ export function AppLayout() {
             <button className="lg:hidden p-2 text-on-surface-variant hover:text-primary" onClick={() => setSidebarOpen(true)}>
               <Icon name="menu" />
             </button>
-            <div className="relative w-full max-w-md hidden md:block">
-              <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" />
-              <input
-                className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-primary text-body-md placeholder:text-on-surface-variant/60"
-                placeholder="Cerca..."
-                type="text"
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-4">
