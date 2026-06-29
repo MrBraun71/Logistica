@@ -221,12 +221,12 @@ export function AppLayout() {
       </nav>
 
       {/* FAB for Mobile */}
-      {location.pathname !== '/dashboard' && (
+      {!location.pathname.endsWith('/dashboard') && (
         <button
           onClick={() => {
-            if (location.pathname === '/turni') navigate('/turni?nuovo')
-            else if (location.pathname === '/veicoli') navigate('/veicoli?nuovo')
-            else if (location.pathname === '/inventario') navigate('/inventario?nuovo')
+            if (location.pathname.endsWith('/turni')) navigate('/turni?nuovo')
+            else if (location.pathname.endsWith('/veicoli')) navigate('/veicoli?nuovo')
+            else if (location.pathname.endsWith('/inventario')) navigate('/inventario?nuovo')
           }}
           className="fixed right-6 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center lg:hidden active:scale-90 transition-all"
         >

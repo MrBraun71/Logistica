@@ -18,22 +18,27 @@ function Icon({ name, className = '' }: { name: string; className?: string }) {
 export default function DashboardPage() {
   const { profile } = useAuth()
   const [shifts, setShifts] = useState<ShiftWithVehicle[]>([])
-  const [shiftCount, setShiftCount] = useState(0)
-  const [vehicleCount, setVehicleCount] = useState(0)
+  const [stats, setStats] = useState({ programmati: 0, chiusi: 0, completati: 0, cancellati: 0 })
 
   useEffect(() => {
     if (!profile?.organization_id) return
     const orgId = profile.organization_id
 
     async function load() {
-      const [sc, vc, sr] = await Promise.all([
-        supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).gte('start_time', new Date().toISOString()),
-        supabase.from('vehicles').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('is_active', true),
+      const [sr, programmati, chiusi, completati, cancellati] = await Promise.all([
         supabase.from('shifts').select('*, shift_vehicles(*, vehicles:vehicle_id(*)), shift_equipment(*, equipment:equipment_id(*))').eq('organization_id', orgId).order('start_time', { ascending: false }).limit(20),
+        supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('status', 'aperto'),
+        supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('status', 'chiuso'),
+        supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('status', 'completato'),
+        supabase.from('shifts').select('id', { count: 'exact' }).eq('organization_id', orgId).eq('status', 'cancellato'),
       ])
 
-      setShiftCount(sc.count ?? 0)
-      setVehicleCount(vc.count ?? 0)
+      setStats({
+        programmati: programmati.count ?? 0,
+        chiusi: chiusi.count ?? 0,
+        completati: completati.count ?? 0,
+        cancellati: cancellati.count ?? 0,
+      })
       if (sr.data) setShifts(sr.data)
     }
     load()
@@ -54,14 +59,22 @@ export default function DashboardPage() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="bg-surface-container-lowest soft-card-shadow p-6 rounded-xl">
-          <p className="text-label-caps text-on-surface-variant">Turni in programma</p>
-          <p className="text-headline-lg text-on-surface tracking-tight mt-1.5">{shiftCount}</p>
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="bg-surface-container-lowest soft-card-shadow p-5 rounded-xl">
+          <p className="text-label-caps text-on-surface-variant flex items-center gap-1.5"><Icon name="event_available" className="text-lg" />Programmati</p>
+          <p className="text-headline-lg text-on-surface tracking-tight mt-1">{stats.programmati}</p>
         </div>
-        <div className="bg-surface-container-lowest soft-card-shadow p-6 rounded-xl">
-          <p className="text-label-caps text-on-surface-variant">Mezzi attivi</p>
-          <p className="text-headline-lg text-on-surface tracking-tight mt-1.5">{vehicleCount}</p>
+        <div className="bg-surface-container-lowest soft-card-shadow p-5 rounded-xl">
+          <p className="text-label-caps text-on-surface-variant flex items-center gap-1.5"><Icon name="check_circle" className="text-lg" />Chiusi</p>
+          <p className="text-headline-lg text-on-surface tracking-tight mt-1">{stats.chiusi}</p>
+        </div>
+        <div className="bg-surface-container-lowest soft-card-shadow p-5 rounded-xl">
+          <p className="text-label-caps text-on-surface-variant flex items-center gap-1.5"><Icon name="task_alt" className="text-lg" />Completati</p>
+          <p className="text-headline-lg text-on-surface tracking-tight mt-1">{stats.completati}</p>
+        </div>
+        <div className="bg-surface-container-lowest soft-card-shadow p-5 rounded-xl">
+          <p className="text-label-caps text-on-surface-variant flex items-center gap-1.5"><Icon name="cancel" className="text-lg" />Cancellati</p>
+          <p className="text-headline-lg text-on-surface tracking-tight mt-1">{stats.cancellati}</p>
         </div>
       </section>
 
