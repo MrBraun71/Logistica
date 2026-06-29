@@ -221,17 +221,11 @@ export default function TurniPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="group">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Inizio</label>
-                      <div className="relative">
-                        <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full h-11 px-4 pl-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
-                        <Icon name="calendar_today" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]" />
-                      </div>
+                      <input type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="w-full max-w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
                     </div>
                     <div className="group">
                       <label className="block text-label-xs text-on-surface-variant mb-1 group-focus-within:text-primary transition-colors">Fine</label>
-                      <div className="relative">
-                        <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full h-11 px-4 pl-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
-                        <Icon name="event_busy" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]" />
-                      </div>
+                      <input type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="w-full max-w-full h-11 px-4 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required />
                     </div>
                   </div>
                 </div>
