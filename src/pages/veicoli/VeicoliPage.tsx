@@ -30,7 +30,7 @@ export default function VeicoliPage() {
       setEditing(null); setError(null); setForm({ name: '', license_plate: '', type: '' }); setShowForm(true)
       navigate('/veicoli', { replace: true })
     }
-  }, [])
+  }, [searchParams, navigate])
 
   useEffect(() => { if (currentUser?.organization_id) loadVehicles() }, [currentUser?.organization_id])
 

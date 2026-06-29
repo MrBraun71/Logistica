@@ -221,7 +221,7 @@ export function AppLayout() {
       </nav>
 
       {/* FAB for Mobile */}
-      {!location.pathname.endsWith('/dashboard') && (
+      {!location.pathname.endsWith('/dashboard') && !location.pathname.endsWith('/contatti') && (
         <button
           onClick={() => {
             if (location.pathname.endsWith('/turni')) navigate('/turni?nuovo')

@@ -39,7 +39,7 @@ export default function InventarioPage() {
       setShowForm(true)
       navigate('/inventario', { replace: true })
     }
-  }, [])
+  }, [searchParams, navigate])
 
   useEffect(() => { if (profile?.organization_id) loadItems() }, [profile?.organization_id])
 

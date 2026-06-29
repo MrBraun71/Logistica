@@ -53,7 +53,7 @@ export default function TurniPage() {
       setSelectedVehicles([]); setSelectedEquipment({}); setShowForm(true)
       navigate('/turni', { replace: true })
     }
-  }, [])
+  }, [searchParams, navigate])
 
   useEffect(() => {
     if (profile?.organization_id) { loadShifts(); loadVehicles(); loadEquipment() }
