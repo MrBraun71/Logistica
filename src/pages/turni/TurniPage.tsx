@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import type { Shift, ShiftAssignment, Vehicle, Profile, Equipment, ShiftEquipment, ShiftVehicle } from '../../types/database'
@@ -27,6 +28,8 @@ const categoriaIcone: Record<string, string> = {
 export default function TurniPage() {
   const { profile } = useAuth()
   const isAdmin = profile?.role === 'admin'
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [shifts, setShifts] = useState<ShiftFull[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [equipmentItems, setEquipmentItems] = useState<Equipment[]>([])
@@ -42,6 +45,15 @@ export default function TurniPage() {
   })
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([])
   const [selectedEquipment, setSelectedEquipment] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    if (searchParams.has('nuovo')) {
+      setEditing(null); setError(null)
+      setForm({ title: '', description: '', start_time: '', end_time: '', type: 'ordinario', max_volunteers: 1 })
+      setSelectedVehicles([]); setSelectedEquipment({}); setShowForm(true)
+      navigate('/turni', { replace: true })
+    }
+  }, [])
 
   useEffect(() => {
     if (profile?.organization_id) { loadShifts(); loadVehicles(); loadEquipment() }

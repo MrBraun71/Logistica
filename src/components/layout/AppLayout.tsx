@@ -221,7 +221,7 @@ export function AppLayout() {
 
       {/* FAB for Mobile */}
       <button
-        onClick={() => navigate('/turni')}
+        onClick={() => navigate('/turni?nuovo')}
         className="fixed right-6 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center lg:hidden active:scale-90 transition-all"
       >
         <Icon name="add" className="text-3xl" />
