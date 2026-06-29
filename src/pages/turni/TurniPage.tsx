@@ -189,7 +189,7 @@ export default function TurniPage() {
   // FORM VIEW
   if (showForm) {
     return (
-      <div className="max-w-[1080px] mx-auto">
+      <div className="max-w-[1080px] mx-auto pb-24">
         {/* Breadcrumb */}
         <nav className="flex gap-2 text-label-xs text-on-surface-variant mb-2">
           <button onClick={() => { setShowForm(false); setEditing(null); setError(null) }} className="hover:text-primary transition-colors">Turni</button>
@@ -301,7 +301,7 @@ export default function TurniPage() {
                               </>
                             )}
                             <button type="button" onClick={() => toggleEquipment(eq.id)}
-                              className="w-7 h-7 rounded-full flex items-center justify-center bg-primary text-on-primary hover:scale-110 active:scale-90 transition-all opacity-0 group-hover:opacity-100">
+                              className="w-7 h-7 rounded-full flex items-center justify-center bg-primary text-on-primary hover:scale-110 active:scale-90 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100">
                               <Icon name="add" className="text-[18px]" />
                             </button>
                           </div>
