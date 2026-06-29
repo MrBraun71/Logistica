@@ -359,11 +359,13 @@ export default function TurniPage() {
                       {vehicles.map(v => (
                         <button key={v.id} type="button" onClick={() => toggleVehicle(v.id)}
                           className={`px-3 py-2 rounded-lg text-label-xs font-medium border transition-all ${
+                            !v.is_active ? 'opacity-40' : ''
+                          } ${
                             selectedVehicles.includes(v.id)
                               ? 'bg-primary text-on-primary border-primary'
                               : 'bg-white text-on-surface-variant border-outline-variant hover:border-primary'
                           }`}>
-                          {v.name}
+                          {v.name}{!v.is_active ? ' (disattivato)' : ''}
                         </button>
                       ))}
                       {vehicles.length === 0 && <span className="text-label-xs text-on-surface-variant">Nessun veicolo disponibile</span>}
